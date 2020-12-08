@@ -14,7 +14,7 @@ const errorHandler = async (err, req, res, next) => {
   await error.logError()
   await error.sendEmailIfOperational()
 
-  return response.error(req, res, error.status, {}, error.message)
+  return response.error(req, res, error.status, error.data, error.message)
 }
 
 module.exports = errorHandler

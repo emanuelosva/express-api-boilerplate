@@ -1,10 +1,11 @@
 const logger = require('./logger')
 
 class ApiError extends Error {
-  constructor(status, message, isOperational = false) {
+  constructor(status, message, isOperational = false, data = {}) {
     super(message)
     this.status = status
     this.isOperational = isOperational
+    this.data = data
   }
 
   async toOperational() {
@@ -12,7 +13,7 @@ class ApiError extends Error {
   }
 
   async logError() {
-    logger.info(this.message)
+    logger.info(`Message: ${this.message} - Data: ${this.data}`)
     if (this.isOperational) {
       logger.info(this.stack)
     }
