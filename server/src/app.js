@@ -1,12 +1,14 @@
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
+const initDb = require('./db')
 const { notFoundHandler, errorHandler, logRequest } = require('./middleware')
 
 /**
  * App instance
  */
 const app = express()
+initDb()
 
 /**
  * Parsers
