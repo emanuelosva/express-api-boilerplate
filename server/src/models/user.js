@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
-const { scopes } = require('../../../auth')
-const { ApiError } = require('../../../lib')
+const { scopes } = require('../auth')
+const { ApiError } = require('../lib')
 
 const Schema = mongoose.Schema
 

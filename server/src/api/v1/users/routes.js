@@ -1,7 +1,7 @@
 const { Router } = require('express')
 const userController = require('./controller')
 const validators = require('./rquestSchema')
-const { authenticate, requestValidation } = require('../../middleware')
+const { authenticate, requestValidation } = require('../../../middleware')
 
 const router = Router()
 

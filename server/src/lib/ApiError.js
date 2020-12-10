@@ -13,7 +13,7 @@ class ApiError extends Error {
   }
 
   async logError() {
-    logger.info(`Message: ${this.message} - Data: ${this.data}`)
+    logger.error(`Message: ${this.message} - Data: ${this.data}`)
     if (this.isOperational) {
       logger.info(this.stack)
     }
@@ -26,7 +26,7 @@ class ApiError extends Error {
   }
 
   static async handleError(err) {
-    console.log(err)
+    logger.error(err)
     process.exit(1)
   }
 

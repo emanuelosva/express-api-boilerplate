@@ -1,6 +1,6 @@
 const { User, RefreshToken } = require('./models')
-const { ApiError } = require('../../lib')
-const { jwt, tokenTypes } = require('../../auth')
+const { ApiError } = require('../../../lib')
+const { jwt, tokenTypes } = require('../../../auth')
 
 class UserService {
   constructor(userODM = User, refreshTokenODM = RefreshToken) {

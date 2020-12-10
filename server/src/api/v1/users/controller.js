@@ -1,4 +1,4 @@
-const response = require('../../response')
+const response = require('../../../response')
 const UserService = require('./service')
 
 const userService = new UserService()
