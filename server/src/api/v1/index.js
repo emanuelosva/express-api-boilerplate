@@ -1,8 +1,10 @@
 const { Router } = require('express')
-const { UsersRouter } = require('../users')
+const UsersRouter = require('./users/routes')
+const TodoRouter = require('./todo/routes')
 
-const ApiRouter = Router()
+const ApiRouterV1 = Router()
 
-ApiRouter.use('/users', UsersRouter)
+ApiRouterV1.use('/users', UsersRouter)
+ApiRouterV1.use('/users', TodoRouter)
 
-module.exports = ApiRouter
+module.exports = ApiRouterV1

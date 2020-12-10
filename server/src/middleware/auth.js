@@ -1,7 +1,7 @@
 const { ApiError } = require('../lib')
 const { jwt, tokenTypes } = require('../auth')
 const httpCode = require('../lib/httpCode')
-const { User } = require('../api/users/models')
+const User = require('../models/user')
 
 const parseRoles = (roles) => {
   if (roles) {
