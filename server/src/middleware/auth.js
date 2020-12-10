@@ -4,13 +4,18 @@ const httpCode = require('../lib/httpCode')
 const { User } = require('../api/users/models')
 
 const parseRoles = (roles) => {
-  if (Array.isArray(roles)) return roles
-  return [roles]
+  if (roles) {
+    if (Array.isArray(roles)) return roles
+    return [roles]
+  }
+  return null
 }
 
 const verifyScope = async (scope, roles) => {
-  const currentRoles = parseRoles(roles)
-  if (!currentRoles.includes(scope)) ApiError.forbidden()
+  if (roles) {
+    const currentRoles = parseRoles(roles)
+    if (!currentRoles.includes(scope)) ApiError.forbidden()
+  }
 }
 
 const extractTokenFromHeader = (req) => {
@@ -24,7 +29,7 @@ const extractTokenFromHeader = (req) => {
   }
 }
 
-const isAuthenticate = (roles) => async (req, res, next) => {
+const isAuthenticate = (roles = null) => async (req, res, next) => {
   try {
     const token = extractTokenFromHeader(req)
     const { email, type, scope } = await jwt.verify(token)
