@@ -3,6 +3,7 @@ const cors = require('cors')
 const helmet = require('helmet')
 const initDb = require('./db')
 const { notFoundHandler, errorHandler, logRequest } = require('./middleware')
+const ApiRouter = require('./api/v1')
 
 /**
  * App instance
@@ -26,6 +27,7 @@ app.use(helmet())
 /**
  * Routers
  */
+app.use('/api/v1', ApiRouter)
 
 /**
  * Error handler

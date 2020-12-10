@@ -5,7 +5,7 @@ const Schema = mongoose.Schema
 const RefreshTokenSchema = new Schema({
   token: { type: String, default: '' },
   email: { type: String, required: true },
-  isValid: { type: Boolean, default: true },
+  isInvalid: { type: Boolean, default: false },
 })
 
 RefreshTokenSchema.index({ token: 1 })

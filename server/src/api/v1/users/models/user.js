@@ -1,5 +1,8 @@
-const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const { scopes } = require('../../../auth')
+const { ApiError } = require('../../../lib')
+
 const Schema = mongoose.Schema
 
 const UserSchema = new Schema({
@@ -10,6 +13,7 @@ const UserSchema = new Schema({
   phoneNumber: { type: String, required: true },
   picture: { type: String, default: '' },
   biography: { type: String, default: '' },
+  type: { type: String, enum: Object.values(scopes), default: scopes.user },
   joinedAt: { type: Date, default: Date.now },
 }, {
   timestamps: true,
@@ -23,6 +27,11 @@ UserSchema.pre('save', async function(next) {
       const saltRounds = await bcrypt.genSalt(10)
       const hash = await bcrypt.hash(this.password, saltRounds)
       this.password = hash
+    }
+    if (this.isModified('email')) {
+      const db = mongoose.connection.db
+      const emailExists = await db.collection('users').findOne({ email: this.email })
+      if (emailExists) ApiError.conflict('email already exists')
     }
     next()
   } catch (error) {
