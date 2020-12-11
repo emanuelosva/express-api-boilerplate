@@ -1,7 +1,7 @@
 const { Router } = require('express')
+const { authenticate, requestValidation } = require('../../../middleware')
 const userController = require('./controller')
 const validators = require('./rquestSchema')
-const { authenticate, requestValidation } = require('../../../middleware')
 
 const router = Router()
 
@@ -25,7 +25,7 @@ router.post(
 router.get(
   '/',
   authenticate(),
-  userController.get,
+  userController.getOne,
 )
 
 router.put(

@@ -1,16 +1,17 @@
 const { User, RefreshToken } = require('./models')
 const { ApiError } = require('../../../lib')
 const { jwt, tokenTypes } = require('../../../auth')
+const { Service } = require('../../../core')
 
-class UserService {
+class UserService extends Service {
   constructor(userODM = User, refreshTokenODM = RefreshToken) {
-    this.User = userODM
+    super(userODM)
     this.RefreshToken = refreshTokenODM
   }
 
   async signup({ email, password, phoneNumber, name }) {
     try {
-      const user = await this.User.create({ email, password, phoneNumber, name })
+      const user = await this.model.create({ email, password, phoneNumber, name })
       return user
     } catch (error) {
       return Promise.reject(error)
@@ -19,7 +20,7 @@ class UserService {
 
   async login({ email, password }) {
     try {
-      const user = await this.User.findOne({ email })
+      const user = await this.model.findOne({ email })
       const correctPassword = user && await User.comparePassword(password)
       if (!correctPassword) ApiError.unauthorized()
 
@@ -66,37 +67,9 @@ class UserService {
 
   async findByEmail(email) {
     try {
-      const user = await this.User.findOne({ email }).lean()
+      const user = await this.model.findOne({ email }).lean()
       if (user) return user
       ApiError.notFound('User not found')
-    } catch (error) {
-      return Promise.reject(error)
-    }
-  }
-
-  async update(id, userToUpdate) {
-    try {
-      const dataToUpdate = {}
-      Object.keys(userToUpdate).forEach((key) => {
-        if (key !== undefined) dataToUpdate[key] = userToUpdate[key]
-      })
-
-      const user = await this.User.findOneAndUpdate(
-        { _id: id },
-        { $set: dataToUpdate },
-      )
-      if (user) return user
-      ApiError.notFound('User not found')
-    } catch (error) {
-      return Promise.reject(error)
-    }
-  }
-
-  async delete(id) {
-    try {
-      const deleted = await this.User.deleteOne({ _id: id })
-      if (deleted.deletedCount) return null
-      ApiError.notFound()
     } catch (error) {
       return Promise.reject(error)
     }
