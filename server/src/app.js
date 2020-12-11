@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
-const initDb = require('./db')
+const DB = require('./db')
 const { notFoundHandler, errorHandler, logRequest } = require('./middleware')
 const ApiRouter = require('./api/v1')
 
@@ -9,7 +9,7 @@ const ApiRouter = require('./api/v1')
  * App instance
  */
 const app = express()
-initDb()
+DB.connect()
 
 /**
  * Parsers
