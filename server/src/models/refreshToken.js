@@ -1,5 +1,7 @@
 const randToken = require('rand-token')
 const mongoose = require('mongoose')
+const { createId } = require('./id')
+
 const Schema = mongoose.Schema
 
 const RefreshTokenSchema = new Schema({
@@ -11,6 +13,7 @@ const RefreshTokenSchema = new Schema({
 RefreshTokenSchema.index({ token: 1 })
 
 RefreshTokenSchema.pre('save', function(next) {
+  createId()
   if (!this.token) {
     this.token = randToken.uid(128)
   }

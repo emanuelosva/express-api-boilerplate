@@ -36,7 +36,7 @@ const isAuthenticate = (roles = null) => async (req, res, next) => {
 
     if (type !== tokenTypes.auth) ApiError.forbidden()
 
-    const user = await User.findOne({ email }, '_id email phoneNumber name')
+    const user = await User.findOne({ email }, 'id email phoneNumber name')
     if (!user) ApiError.unauthorized()
 
     await verifyScope(scope, roles)

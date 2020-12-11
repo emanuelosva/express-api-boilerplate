@@ -1,4 +1,4 @@
-const response = require('../response')
+const { response } = require('../core')
 const { ApiError } = require('../lib')
 const httpCode = require('../lib/httpCode')
 
