@@ -1,4 +1,5 @@
 const { Router } = require('express')
+const { scopes } = require('../../../auth')
 const { authenticate, requestValidation } = require('../../../middleware')
 const todoController = require('./controller')
 const validators = require('./requestSchema')
@@ -42,7 +43,7 @@ router.patch(
 
 router.delete(
   '/:id',
-  authenticate(),
+  authenticate(scopes.user),
   requestValidation(validators.deleteValidator),
   todoController.delete,
 )

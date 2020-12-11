@@ -30,11 +30,33 @@ exports.loginValidator = Joi.object({
 exports.refreshValidator = Joi.object({
   params: {},
   query: {},
-  email: emailSchema.required(),
-  refreshToken: refreshTokenSchema.required(),
+  body: {
+    email: emailSchema.required(),
+    refreshToken: refreshTokenSchema.required(),
+  },
+})
+
+exports.getValidator = Joi.object({
+  params: {},
+  query: {},
+  body: {},
 })
 
 exports.updateValidator = Joi.object({
+  params: {},
+  query: {},
+  body: {
+    email: emailSchema.required(),
+    password: passwordSchema.required(),
+    phoneNumber: phoneNumberSchema.required(),
+    name: nameSchema.required(),
+    lastname: nameSchema.required(),
+    picture: Joi.string().required(),
+    biography: Joi.string().max(1024).required(),
+  },
+})
+
+exports.patchValidator = Joi.object({
   params: {},
   query: {},
   body: {
@@ -46,4 +68,10 @@ exports.updateValidator = Joi.object({
     picture: Joi.string().optional(),
     biography: Joi.string().max(1024).optional(),
   },
+})
+
+exports.deleteValidator = Joi.object({
+  params: {},
+  query: {},
+  body: {},
 })

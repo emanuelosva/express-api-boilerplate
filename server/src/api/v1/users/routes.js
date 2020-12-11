@@ -19,12 +19,14 @@ router.post(
 
 router.post(
   '/refresh-token',
+  requestValidation(validators.refreshValidator),
   userController.refreshToken,
 )
 
 router.get(
   '/',
   authenticate(),
+  requestValidation(validators.getValidator),
   userController.getOne,
 )
 
@@ -35,9 +37,17 @@ router.put(
   userController.update,
 )
 
+router.patch(
+  '/',
+  authenticate(),
+  requestValidation(validators.patchValidator),
+  userController.update,
+)
+
 router.delete(
   '/',
   authenticate(),
+  requestValidation(validators.deleteValidator),
   userController.delete,
 )
 
