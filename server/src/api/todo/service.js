@@ -1,5 +1,5 @@
 const { Todo } = require('./models')
-const { Service } = require('../../../core')
+const { Service } = require('../../core')
 
 class TodoService extends Service {
   constructor(todoODM = Todo) {

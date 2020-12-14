@@ -1,5 +1,5 @@
 const { Router } = require('express')
-const { authenticate, requestValidation } = require('../../../middleware')
+const { auth, requestValidation } = require('../../middleware')
 const userController = require('./controller')
 const validators = require('./rquestSchema')
 
@@ -8,7 +8,7 @@ const router = Router()
 router.post(
   '/signup',
   requestValidation(validators.signupValidator),
-  userController.signup,
+  userController.insert,
 )
 
 router.post(
@@ -25,28 +25,39 @@ router.post(
 
 router.get(
   '/',
-  authenticate(),
+  auth.IsAuthenticate,
+  auth.IsAdmin,
+  userController.getAll,
+)
+
+router.get(
+  '/:id',
+  auth.IsAuthenticate,
+  auth.IsAccountOwnerOrAdmin,
   requestValidation(validators.getValidator),
   userController.getOne,
 )
 
 router.put(
-  '/',
-  authenticate(),
+  '/:id',
+  auth.IsAuthenticate,
+  auth.IsAccountOwnerOrAdmin,
   requestValidation(validators.updateValidator),
   userController.update,
 )
 
 router.patch(
-  '/',
-  authenticate(),
+  '/:id',
+  auth.IsAuthenticate,
+  auth.IsAccountOwnerOrAdmin,
   requestValidation(validators.patchValidator),
   userController.update,
 )
 
 router.delete(
-  '/',
-  authenticate(),
+  '/:id',
+  auth.IsAuthenticate,
+  auth.IsAccountOwnerOrSuperAdmin,
   requestValidation(validators.deleteValidator),
   userController.delete,
 )

@@ -3,13 +3,13 @@ const cors = require('cors')
 const helmet = require('helmet')
 const DB = require('./db')
 const { notFoundHandler, errorHandler, logRequest } = require('./middleware')
-const ApiRouter = require('./api/v1')
+const ApiRouter = require('./api/router')
 
 /**
  * App instance
  */
 const app = express()
-DB.connect()
+// DB.connect()
 
 /**
  * Parsers
@@ -27,7 +27,7 @@ app.use(helmet())
 /**
  * Routers
  */
-app.use('/api/v1', ApiRouter)
+app.use('/api', ApiRouter)
 
 /**
  * Error handler

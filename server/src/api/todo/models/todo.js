@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { createId } = require('./id')
+const { createModelId } = require('../../../lib')
 
 const Schema = mongoose.Schema
 
@@ -10,7 +10,7 @@ const TodoSchema = new Schema({
 })
 
 TodoSchema.pre('save', function(next) {
-  createId()
+  createModelId()
   next()
 })
 

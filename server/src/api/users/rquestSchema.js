@@ -47,7 +47,7 @@ exports.updateValidator = Joi.object({
   query: {},
   body: {
     email: emailSchema.required(),
-    password: passwordSchema.required(),
+    password: passwordSchema,
     phoneNumber: phoneNumberSchema.required(),
     name: nameSchema.required(),
     lastname: nameSchema.required(),

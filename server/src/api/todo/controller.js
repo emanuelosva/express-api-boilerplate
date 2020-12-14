@@ -1,6 +1,6 @@
 const TodoService = require('./service')
 const { Todo } = require('./models')
-const { Controller, response } = require('../../../core')
+const { Controller, response } = require('../../core')
 
 const todoService = new TodoService(Todo)
 

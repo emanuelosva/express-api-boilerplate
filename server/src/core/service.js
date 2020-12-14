@@ -1,8 +1,9 @@
 const { ApiError } = require('../lib')
 
 class Service {
-  constructor(model, { paginationLimit = 20 } = {}) {
+  constructor(model, { activeSchema = false, paginationLimit = 20 } = {}) {
     this.model = model
+    this.activeSchema = activeSchema
     this.paginationLimit = paginationLimit
     this.getAll = this.getAll.bind(this)
     this.getOne = this.getOne.bind(this)
@@ -30,7 +31,10 @@ class Service {
   async getOne(id) {
     try {
       const item = await this.model.findOne({ id })
-      if (item) return item
+      if (item) {
+        if (!this.activeSchema) return item
+        if (item.isActive) return item
+      }
       ApiError.notFound('Item not found')
     } catch (error) {
       return Promise.reject(error)
@@ -53,7 +57,10 @@ class Service {
         if (key !== undefined) dataToUpdate[key] = data[key]
       })
       const item = await this.model.findByIdAndUpdate(id, dataToUpdate)
-      if (item) return item
+      if (item) {
+        if (!this.activeSchema) return item
+        if (item.isActive) return item
+      }
       ApiError.notFound('Item not found')
     } catch (error) {
       return Promise.reject(error)

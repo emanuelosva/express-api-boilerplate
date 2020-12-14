@@ -1,17 +1,18 @@
 const { User, RefreshToken } = require('./models')
-const { ApiError } = require('../../../lib')
-const { jwt, tokenTypes } = require('../../../auth')
-const { Service } = require('../../../core')
+const { ApiError } = require('../../lib')
+const { createToken } = require('../../auth')
+const { Service } = require('../../core')
 
 class UserService extends Service {
   constructor(userODM = User, refreshTokenODM = RefreshToken) {
-    super(userODM)
+    super(userODM, { activeSchema: true, paginationLimit: 50 })
     this.RefreshToken = refreshTokenODM
   }
 
-  async signup({ email, password, phoneNumber, name }) {
+  async insert({ email, password, phoneNumber, name }) {
     try {
       const user = await this.model.create({ email, password, phoneNumber, name })
+      // TODO: implement a secuity flow to confirm account.
       return user
     } catch (error) {
       return Promise.reject(error)
@@ -23,14 +24,8 @@ class UserService extends Service {
       const user = await this.model.findOne({ email })
       const correctPassword = user && await User.comparePassword(password)
       if (!correctPassword) ApiError.unauthorized()
-
       const token = await this.RefreshToken.create({ email: user.email })
-      const accessToken = await jwt.sign({
-        email: user.email,
-        scope: user.type,
-        type: tokenTypes.auth,
-      })
-
+      const accessToken = await createToken(user.email, user.type)
       return {
         user,
         accessToken,
@@ -47,32 +42,23 @@ class UserService extends Service {
       if (!storedToken || storedToken.email !== email || storedToken.isInvalid) {
         ApiError.forbidden()
       }
-
       const user = await this.findByEmail(email)
-      const accessToken = await jwt.sign({
-        email: email,
-        scope: user.type,
-        type: tokenTypes.auth,
-      })
-
+      const accessToken = await createToken(email, user.type)
       return {
+        user,
         accessToken,
         refreshToken: token,
-        user,
       }
     } catch (error) {
       return Promise.reject(error)
     }
   }
 
-  async findByEmail(email) {
-    try {
-      const user = await this.model.findOne({ email }).lean()
-      if (user) return user
-      ApiError.notFound('User not found')
-    } catch (error) {
-      return Promise.reject(error)
-    }
+  async delete(id) {
+    const user = await this.model.findOne({ _id: id })
+    if (!user) ApiError.notFound('user not found')
+    user.isActive = false
+    await user.save()
   }
 }
 

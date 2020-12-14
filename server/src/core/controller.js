@@ -15,7 +15,7 @@ class Controller {
     try {
       const { query } = req
       const data = await this.service.getAll(query)
-      return response.success(req, res, 200, data, `${this.service}s retrieved`)
+      return response.success(req, res, 200, data, `${this.serviceName}s retrieved`)
     } catch (error) {
       return next(error)
     }
@@ -25,7 +25,7 @@ class Controller {
     try {
       const { params: { id } } = req
       const data = await this.service.getOne(id)
-      return response.success(req, res, 200, data, `${this.service} retrieved`)
+      return response.success(req, res, 200, data, `${this.serviceName} retrieved`)
     } catch (error) {
       return next(error)
     }
@@ -35,7 +35,7 @@ class Controller {
     try {
       const { body: itemDTO } = req
       const data = await this.service.insert(itemDTO)
-      return response.success(req, res, 201, data, `${this.service} inserted`)
+      return response.success(req, res, 201, data, `${this.serviceName} inserted`)
     } catch (error) {
       return next(error)
     }
@@ -45,7 +45,7 @@ class Controller {
     try {
       const { body: itemDTO, params: { id } } = req
       const data = await this.service.update(id, itemDTO)
-      return response.success(req, res, 200, data, `${this.service} updated`)
+      return response.success(req, res, 200, data, `${this.serviceName} updated`)
     } catch (error) {
       return next(error)
     }
@@ -54,8 +54,8 @@ class Controller {
   async delete(req, res, next) {
     try {
       const { params: { id } } = req
-      const data = await this.service.delete(id)
-      return response.success(req, res, 200, data, `${this.service} deleted`)
+      await this.service.delete(id)
+      return response.success(req, res, 204, {}, `${this.serviceName} deleted`)
     } catch (error) {
       return next(error)
     }

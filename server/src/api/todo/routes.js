@@ -1,6 +1,5 @@
 const { Router } = require('express')
-const { scopes } = require('../../../auth')
-const { authenticate, requestValidation } = require('../../../middleware')
+const { auth, requestValidation } = require('../../middleware')
 const todoController = require('./controller')
 const validators = require('./requestSchema')
 
@@ -8,42 +7,48 @@ const router = Router()
 
 router.post(
   '/',
-  authenticate(),
+  auth.IsAuthenticate,
+  auth.IsAccountOwner,
   requestValidation(validators.insertValidator),
   todoController.insert,
 )
 
 router.get(
   '/',
-  authenticate(),
+  auth.IsAuthenticate,
+  auth.IsAccountOwnerOrAdmin,
   requestValidation(validators.getAllValidator),
   todoController.getAll,
 )
 
 router.get(
   '/:id',
-  authenticate(),
+  auth.IsAuthenticate,
+  auth.IsAccountOwnerOrAdmin,
   requestValidation(validators.getOneValidator),
   todoController.getOne,
 )
 
 router.put(
   '/:id',
-  authenticate(),
+  auth.IsAuthenticate,
+  auth.IsAccountOwner,
   requestValidation(validators.updateValidator),
   todoController.update,
 )
 
 router.patch(
   '/:id',
-  authenticate(),
+  auth.IsAuthenticate,
+  auth.IsAccountOwner,
   requestValidation(validators.patchValidator),
   todoController.update,
 )
 
 router.delete(
   '/:id',
-  authenticate(scopes.user),
+  auth.IsAuthenticate,
+  auth.IsAccountOwner,
   requestValidation(validators.deleteValidator),
   todoController.delete,
 )

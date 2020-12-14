@@ -1,8 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
-const { scopes } = require('../auth')
-const { ApiError } = require('../lib')
-const { createId } = require('./id')
+const { scopes } = require('../../../auth')
+const { ApiError, createModelId } = require('../../../lib')
 
 const Schema = mongoose.Schema
 
@@ -15,6 +14,7 @@ const UserSchema = new Schema({
   phoneNumber: { type: String, required: true },
   picture: { type: String, default: '' },
   biography: { type: String, default: '' },
+  isActive: { type: Boolean, default: true },
   type: { type: String, enum: Object.values(scopes), default: scopes.user },
   joinedAt: { type: Date, default: Date.now },
 }, {
@@ -25,7 +25,7 @@ UserSchema.index({ email: 1 })
 
 UserSchema.pre('save', async function(next) {
   try {
-    createId()
+    createModelId()
     if (this.isModified('password')) {
       const saltRounds = await bcrypt.genSalt(10)
       const hash = await bcrypt.hash(this.password, saltRounds)

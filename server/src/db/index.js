@@ -4,7 +4,7 @@ const { logger, ApiError } = require('../lib')
 
 db.Promise = global.Promise
 class DB {
-  static connect() {
+  static async connect() {
     db.connect(config.db.URL, {
       useCreateIndex: true,
       useUnifiedTopology: true,
@@ -14,6 +14,14 @@ class DB {
     }).catch(async (err) => {
       await ApiError.handleError(err)
     })
+  }
+
+  static async drop(collection) {
+    await db.connection.collection(collection).drop()
+  }
+
+  static async disconnect() {
+    await db.disconnect()
   }
 }
 

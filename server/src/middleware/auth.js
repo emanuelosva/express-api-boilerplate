@@ -1,22 +1,7 @@
 const { ApiError } = require('../lib')
-const { jwt, tokenTypes } = require('../auth')
+const { jwt, tokenTypes, scopes } = require('../auth')
 const httpCode = require('../lib/httpCode')
-const User = require('../models/user')
-
-const parseRoles = (roles) => {
-  if (roles) {
-    if (Array.isArray(roles)) return roles
-    return [roles]
-  }
-  return null
-}
-
-const verifyScope = async (scope, roles) => {
-  if (roles) {
-    const currentRoles = parseRoles(roles)
-    if (!currentRoles.includes(scope)) ApiError.forbidden()
-  }
-}
+const { User } = require('../api/users/models')
 
 const extractTokenFromHeader = (req) => {
   try {
@@ -29,7 +14,7 @@ const extractTokenFromHeader = (req) => {
   }
 }
 
-const isAuthenticate = (roles = null) => async (req, res, next) => {
+const IsAuthenticate = async (req, res, next) => {
   try {
     const token = extractTokenFromHeader(req)
     const { email, type, scope } = await jwt.verify(token)
@@ -37,11 +22,8 @@ const isAuthenticate = (roles = null) => async (req, res, next) => {
     if (type !== tokenTypes.auth) ApiError.forbidden()
 
     const user = await User.findOne({ email }, 'id email phoneNumber name')
-    if (!user) ApiError.unauthorized()
-
-    await verifyScope(scope, roles)
-
-    req.user = user
+    if (!user || !user.isActive) ApiError.unauthorized()
+    req.user = { ...user, scope }
     next()
   } catch (error) {
     if (error.status) return next(error)
@@ -49,4 +31,50 @@ const isAuthenticate = (roles = null) => async (req, res, next) => {
   }
 }
 
-module.exports = isAuthenticate
+const IsAccountOwner = (req, res, next) => {
+  const { params: { id } } = req
+  if (id === req.user.id) {
+    return next()
+  }
+  next(new ApiError(httpCode.status.forbidden))
+}
+
+const IsAdmin = (req, res, next) => {
+  const { user: { type } } = req
+  if (type === scopes.superAdmin || type === scopes.admin) {
+    return next()
+  }
+  next(new ApiError(httpCode.status.forbidden, 'you dont have access to resource'))
+}
+
+const IsSuperAdmin = (req, res, next) => {
+  if (req.user.type === scopes.superAdmin) {
+    return next()
+  }
+  next(new ApiError(httpCode.status.forbidden, 'you dont have access to resource'))
+}
+
+const IsAccountOwnerOrAdmin = (req, res, next) => {
+  const { params: { id } } = req
+  if (id === req.user.id) {
+    return next()
+  }
+  return IsAdmin(req, res, next)
+}
+
+const IsAccountOwnerOrSuperAdmin = (req, res, next) => {
+  const { params: { id } } = req
+  if (id === req.user.id) {
+    return next()
+  }
+  return IsSuperAdmin(req, res, next)
+}
+
+module.exports = {
+  IsAuthenticate,
+  IsAccountOwner,
+  IsAdmin,
+  IsSuperAdmin,
+  IsAccountOwnerOrAdmin,
+  IsAccountOwnerOrSuperAdmin,
+}
