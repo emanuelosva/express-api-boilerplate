@@ -6,7 +6,8 @@ const todoService = new TodoService(Todo)
 
 class TodoController extends Controller {
   constructor(service = todoService) {
-    super(service, 'todo')
+    super(service, { serviceName: 'todo' })
+    this.insert = this.insert.bind(this)
   }
 
   async insert(req, res, next) {

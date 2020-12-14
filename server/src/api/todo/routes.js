@@ -7,48 +7,42 @@ const router = Router()
 
 router.post(
   '/',
-  auth.IsAuthenticate,
-  auth.IsAccountOwner,
+  auth.IsAuthenticate, auth.IsAccountOwner,
   requestValidation(validators.insertValidator),
   todoController.insert,
 )
 
 router.get(
   '/',
-  auth.IsAuthenticate,
-  auth.IsAccountOwnerOrAdmin,
+  auth.IsAuthenticate, auth.IsAccountOwnerOrAdmin,
   requestValidation(validators.getAllValidator),
   todoController.getAll,
 )
 
 router.get(
   '/:id',
-  auth.IsAuthenticate,
-  auth.IsAccountOwnerOrAdmin,
+  auth.IsAuthenticate, auth.IsAccountOwnerOrAdmin,
   requestValidation(validators.getOneValidator),
   todoController.getOne,
 )
 
 router.put(
   '/:id',
-  auth.IsAuthenticate,
-  auth.IsAccountOwner,
+  auth.IsAuthenticate, auth.IsAccountOwner,
   requestValidation(validators.updateValidator),
   todoController.update,
 )
 
 router.patch(
   '/:id',
-  auth.IsAuthenticate,
-  auth.IsAccountOwner,
+  auth.IsAuthenticate, auth.IsAccountOwner,
   requestValidation(validators.patchValidator),
   todoController.update,
 )
 
 router.delete(
   '/:id',
-  auth.IsAuthenticate,
-  auth.IsAccountOwner,
+  auth.IsAuthenticate, auth.IsAccountOwner,
   requestValidation(validators.deleteValidator),
   todoController.delete,
 )

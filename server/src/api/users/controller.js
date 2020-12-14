@@ -7,7 +7,9 @@ const userService = new UserService(User, RefreshToken)
 
 class UserController extends Controller {
   constructor(service = userService) {
-    super(service, 'user')
+    super(service, { serviceName: 'user' })
+    this.login = this.login.bind(this)
+    this.refreshToken = this.refreshToken.bind(this)
   }
 
   async login(req, res, next) {

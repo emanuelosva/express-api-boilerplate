@@ -1,59 +1,54 @@
-const Joi = require('joi')
+const { body, query, param } = require('express-validator')
 
-const nameSchema = Joi.string()
-const descriptionSchema = Joi.string()
+const userQuerySchema = () => query('user')
+  .isMongoId().withMessage('<id> must be a valid ID')
 
-exports.insertValidator = Joi.object({
-  query: {},
-  params: {},
-  body: {
-    name: nameSchema.required(),
-    description: descriptionSchema,
-  },
-})
+const idSchema = () => param('id')
+  .isMongoId().withMessage('<id> must be a valid ID')
 
-exports.getAllValidator = Joi.object({
-  query: {
-    user: Joi.string().required(),
-  },
-  params: {},
-  body: {},
-})
+const nameSchema = () => body('name')
+  .isString().withMessage('<name> must be a trsing')
+  .isLength({ min: 1, max: 80 }).withMessage('<name> must have a max length of 80')
+  .trim()
 
-exports.getOneValidator = Joi.object({
-  query: {},
-  params: {
-    id: Joi.string().required(),
-  },
-  body: {},
-})
+const descriptionSchema = () => body('description')
+  .isString().withMessage('<name> must be a trsing')
+  .isLength({ min: 1, max: 500 }).withMessage('<description> must have a max length of 80')
 
-exports.updateValidator = Joi.object({
-  query: {},
-  params: {
-    id: Joi.string().required(),
-  },
-  body: {
-    name: nameSchema.required(),
-    description: descriptionSchema.required(),
-  },
-})
+exports.insertValidator = [
+  nameSchema().exists().withMessage('<name> is required'),
+  descriptionSchema().exists().withMessage('<description> is required'),
+]
 
-exports.patchValidator = Joi.object({
-  query: {},
-  params: {
-    id: Joi.string().required(),
-  },
-  body: {
-    name: nameSchema,
-    description: descriptionSchema,
-  },
-})
+exports.getAllValidator = [
+  query('limit')
+    .optional()
+    .isNumeric().withMessage('<limit> must be a number')
+    .toInt()
+    .isLength({ min: 1, max: 200 }).withMessage('<limit> must be between 1 to 200'),
+  query('skip')
+    .exists()
+    .isNumeric().withMessage('<limit> must be a number')
+    .toInt(),
+  userQuerySchema().exists().withMessage('<user> is required'),
+]
 
-exports.deleteValidator = Joi.object({
-  query: {},
-  params: {
-    id: Joi.string().required(),
-  },
-  body: {},
-})
+exports.getOneValidator = [
+  idSchema().exists().withMessage('<id> is required'),
+]
+
+exports.updateValidator = [
+  idSchema().exists().withMessage('<id> is required'),
+  nameSchema().exists().withMessage('<name> is required'),
+  descriptionSchema().exists().withMessage('<description> is required'),
+]
+
+exports.patchValidator = [
+  idSchema().exists().withMessage('<id> is required'),
+  nameSchema().optional(),
+  descriptionSchema().optional(),
+]
+
+exports.deleteValidator = [
+  idSchema().exists().withMessage('<id> is required'),
+]

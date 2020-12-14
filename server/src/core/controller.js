@@ -1,7 +1,7 @@
 const response = require('./reponse')
 
 class Controller {
-  constructor(service, serviceName = 'item') {
+  constructor(service, { serviceName = 'item' } = {}) {
     this.service = service
     this.serviceName = serviceName
     this.getAll = this.getAll.bind(this)

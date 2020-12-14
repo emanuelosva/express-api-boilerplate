@@ -30,7 +30,7 @@ exports.error = (req, res, status, data, detail) => {
 
   return res.status(statusCode).json({
     error: true,
-    detail: statusMessage,
+    detail: statusCode === 500 ? 'server error' : statusMessage,
     data: data || {},
   })
 }

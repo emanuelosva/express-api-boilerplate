@@ -13,7 +13,7 @@ class ApiError extends Error {
   }
 
   async logError() {
-    logger.error(`Message: ${this.message} - Data: ${this.data}`)
+    logger.error(`Message: ${this.message} - Data: ${JSON.stringify(this.data)}`)
     if (this.isOperational) {
       logger.info(this.stack)
     }
