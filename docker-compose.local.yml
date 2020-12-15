@@ -1,0 +1,28 @@
+version: "3"
+services:
+  api:
+    container_name: api
+    image: node_api
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.dev
+    env_file: .env
+    restart: on-failure
+    volumes:
+      - .:/usr/src/
+    environment:
+     - NODE_ENV=development
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    command: bash -c "nodemon src/index.js"
+  db:
+    container_name: db
+    image: mongo:4.4
+    restart: always
+    volumes:
+      - mongo-db-data:/data/db
+
+volumes:
+  mongo-db-data:

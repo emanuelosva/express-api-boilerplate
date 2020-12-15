@@ -1,0 +1,16 @@
+version: "3"
+services:
+  api:
+    container_name: api
+    image: node_api
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile.prod
+    env_file: ./../.env
+    restart: on-failure
+    volumes:
+      - ./../:/usr/src/
+    environment:
+     - NODE_ENV=production
+    ports:
+      - 3000:3000

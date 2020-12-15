@@ -1,0 +1,28 @@
+version: "3"
+services:
+  api:
+    container_name: api
+    image: node_api
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.dev
+    env_file: ./../.env
+    restart: on-failure
+    environment:
+     - NODE_ENV=test
+    volumes:
+      - ./../:/usr/src/
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    command: >
+      bash -c "npx jest
+      --verbose
+      --coverage 
+      --collectCoverage
+      --coverageReporters=html"
+  db:
+    container_name: db
+    image: mongo:4.4
+    restart: always
