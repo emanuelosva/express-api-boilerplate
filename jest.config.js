@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
-  testTimeout: 30000,
+  testTimeout: 50000,
 }
 process.env = Object.assign(process.env, {
   NODE_ENV: 'test',
