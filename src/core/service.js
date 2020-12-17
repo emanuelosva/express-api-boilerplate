@@ -1,4 +1,5 @@
 const { ApiError } = require('../lib')
+
 class Service {
   constructor(model, cache, { name = 'item', activeSchema = false, paginationLimit = 20 } = {}) {
     this.model = model

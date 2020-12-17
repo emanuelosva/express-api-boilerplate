@@ -3,6 +3,7 @@ const config = require('../config')
 const { logger, ApiError } = require('../lib')
 
 db.Promise = global.Promise
+
 class DB {
   static async connect() {
     db.connect(config.db.URL, {

@@ -14,6 +14,9 @@ const errorHandler = async (err, req, res, next) => {
   await error.logError()
   await error.sendEmailIfOperational()
 
+  if (error.status === httpCode.status.unauthorized) {
+    res.set('WWW-Authenticate', 'JWT')
+  }
   return response.error(req, res, error.status, error.data, error.message)
 }
 
