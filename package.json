@@ -17,6 +17,16 @@
   "private": true,
   "author": "Name <name@mail.com>",
   "license": "MIT",
+  "keywords": [
+    "express",
+    "node",
+    "node.js",
+    "mongodb",
+    "mongoose",
+    "REST",
+    "API",
+    "boilerplate"
+  ],
   "dependencies": {
     "bcrypt": "^5.0.0",
     "compression": "^1.7.4",
@@ -30,6 +40,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.5",
     "rand-token": "^1.0.1",
+    "rate-limit-redis": "^2.0.0",
+    "redis": "^3.0.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {
