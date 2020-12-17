@@ -12,6 +12,7 @@ services:
       - .:/usr/src/
     environment:
      - NODE_ENV=development
+     - REDIS_URL=redis://cache
     ports:
       - 3000:3000
     depends_on:
@@ -23,6 +24,14 @@ services:
     restart: always
     volumes:
       - mongo-db-data:/data/db
+  redis:
+    container_name: cache
+    image: redis:3.2
+    restart: always
+    expose:
+      - 6379
+    ports:
+      - 6379:6379
 
 volumes:
   mongo-db-data:

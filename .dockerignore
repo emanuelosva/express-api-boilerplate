@@ -11,3 +11,9 @@
 LICENSE
 README.md
 .gitignore
+
+# Serverless
+.vercel
+vercerl.json
+.vercelignore
+.serverless
