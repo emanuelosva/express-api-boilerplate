@@ -27,6 +27,7 @@ class ApiError extends Error {
 
   static async handleError(err) {
     logger.error(err)
+    await this.sendEmailIfOperational()
     process.exit(1)
   }
 

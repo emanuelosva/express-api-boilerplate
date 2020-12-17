@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const { scopes } = require('../../../auth')
-const { ApiError, createModelId } = require('../../../lib')
+const { ApiError } = require('../../../lib')
 
 const Schema = mongoose.Schema
 
@@ -25,7 +25,6 @@ UserSchema.index({ email: 1 })
 
 UserSchema.pre('save', async function(next) {
   try {
-    createModelId.bind(this)
     if (this.isModified('password')) {
       const saltRounds = await bcrypt.genSalt(10)
       const hash = await bcrypt.hash(this.password, saltRounds)
