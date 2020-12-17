@@ -1,18 +1,44 @@
 const { Router } = require('express')
-const { auth, requestValidation } = require('../../middleware')
-const userController = require('./controller')
+const { auth, requestValidation, limiter } = require('../../middleware')
 const validators = require('./requestSchema')
+const userController = require('./controller')
 
 const router = Router()
 
+const MAX_REQUEST_PER_MIN_IN_AUTH = 4
+router.use(limiter())
+
+router.post(
+  '/superadmin',
+  auth.IsAuthenticated, auth.IsSuperAdmin,
+  requestValidation(validators.signupValidator),
+  userController.createSuperAdmin,
+)
+
+router.post(
+  '/admin',
+  auth.IsAuthenticated, auth.IsAdmin,
+  requestValidation(validators.signupValidator),
+  userController.createAdmin,
+)
+
 router.post(
   '/',
+  auth.IsAuthenticated, auth.IsAdmin,
   requestValidation(validators.signupValidator),
   userController.insert,
 )
 
 router.post(
+  '/signup',
+  limiter(MAX_REQUEST_PER_MIN_IN_AUTH),
+  requestValidation(validators.signupValidator),
+  userController.signup,
+)
+
+router.post(
   '/login',
+  limiter(MAX_REQUEST_PER_MIN_IN_AUTH),
   requestValidation(validators.loginValidator),
   userController.login,
 )

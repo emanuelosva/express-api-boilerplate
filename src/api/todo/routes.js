@@ -1,9 +1,12 @@
 const { Router } = require('express')
-const { auth, requestValidation } = require('../../middleware')
+const { auth, requestValidation, limiter } = require('../../middleware')
 const todoController = require('./controller')
 const validators = require('./requestSchema')
 
 const router = Router()
+
+const MAX_REQUEST_PER_MINUTE = 60
+router.use(limiter(MAX_REQUEST_PER_MINUTE))
 
 router.post(
   '/',
