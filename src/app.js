@@ -1,7 +1,9 @@
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
-const DB = require('./db')
+const mongoSanitize = require('express-mongo-sanitize')
+const compression = require('compression')
+const DB = require('./db/mongo')
 const { notFoundHandler, errorHandler, logRequest } = require('./middleware')
 const ApiRouter = require('./api/router')
 
@@ -16,6 +18,7 @@ DB.connect()
  */
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(compression())
 app.use(logRequest)
 
 /**
@@ -23,6 +26,7 @@ app.use(logRequest)
  */
 app.use(cors())
 app.use(helmet())
+app.use(mongoSanitize())
 
 /**
  * Routers

@@ -10,7 +10,7 @@ const checkIfExtraFields = (validators, req) => {
   allowedFields.forEach((key) => {
     if (requestInput[key]) requestInput[key] = null
   })
-  const remainInputFields = Object.keys(requestInput).filter(key => requestInput[key])
+  const remainInputFields = Object.keys(requestInput).filter((key) => requestInput[key])
   if (!remainInputFields.length) {
     return null
   }

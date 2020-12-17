@@ -20,10 +20,9 @@ const IsAuthenticated = async (req, res, next) => {
     const { email, type, scope } = await jwt.verify(token)
 
     if (type !== tokenTypes.auth) ApiError.forbidden()
-
     const user = await User.findOne({ email }, 'id email phoneNumber name isActive').lean()
     if (!user || !user.isActive) ApiError.unauthorized()
-    req.user = { ...user, scope, id: String(user._id) }
+    req.user = { ...user, type: scope, id: String(user._id) }
     next()
   } catch (error) {
     if (error.status) return next(error)
