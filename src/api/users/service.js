@@ -1,15 +1,19 @@
 const { User, RefreshToken } = require('./models')
 const { ApiError } = require('../../lib')
 const { createToken } = require('../../auth')
-const { Service } = require('../../core')
+const { Service, Cache } = require('../../core')
 
 class UserService extends Service {
   constructor(userODM = User, refreshTokenODM = RefreshToken) {
-    super(userODM, { activeSchema: true, paginationLimit: 50 })
+    super(userODM, new Cache('users'), {
+      name: 'user',
+      activeSchema: true,
+      paginationLimit: 50,
+    })
     this.RefreshToken = refreshTokenODM
   }
 
-  async insert({ email, password, phoneNumber, name }) {
+  async signup({ email, password, phoneNumber, name }) {
     try {
       let user = await this.model.create({ email, password, phoneNumber, name })
       user = user.toJSON()
@@ -55,13 +59,6 @@ class UserService extends Service {
     } catch (error) {
       return Promise.reject(error)
     }
-  }
-
-  async delete(id) {
-    const user = await this.model.findOne({ _id: id })
-    if (!user) ApiError.notFound('user not found')
-    user.isActive = false
-    await user.save()
   }
 }
 
