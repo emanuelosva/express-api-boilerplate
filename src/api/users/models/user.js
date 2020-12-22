@@ -14,7 +14,7 @@ const UserSchema = new Schema({
   phoneNumber: { type: String, required: true },
   picture: { type: String, default: '' },
   biography: { type: String, default: '' },
-  isActive: { type: Boolean, default: true },
+  isActive: { type: Boolean, default: false },
   type: { type: String, enum: Object.values(scopes), default: scopes.user },
   joinedAt: { type: Date, default: Date.now },
 }, {

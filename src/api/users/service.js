@@ -1,7 +1,8 @@
 const { User, RefreshToken } = require('./models')
 const { ApiError } = require('../../lib')
-const { createToken } = require('../../auth')
+const { createToken, tokenTypes, jwt } = require('../../auth')
 const { Service, Cache } = require('../../core')
+const mail = require('../../services/mail')
 
 class UserService extends Service {
   constructor(userODM = User, refreshTokenODM = RefreshToken) {
@@ -15,12 +16,25 @@ class UserService extends Service {
 
   async signup({ email, password, phoneNumber, name }) {
     try {
-      let user = await this.model.create({ email, password, phoneNumber, name })
-      user = user.toJSON()
-
-      // TODO: implement a secuity flow to confirm account.
-
+      const user = await this.model.create({ email, password, phoneNumber, name })
+      const token = await createToken(user.email, '', tokenTypes.mail)
+      await mail.sends.welcome(user.email, { name: user.name, token })
       return this.sanitize(user)
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
+  async verify({ token }) {
+    try {
+      const { email, type } = await jwt.verify(token)
+      const user = await this.model.findOne({ email })
+      if (user && type === tokenTypes.mail) {
+        user.isActive = true
+        await user.save()
+        return this.sanitize(user)
+      }
+      ApiError.forbidden('invalid token')
     } catch (error) {
       return Promise.reject(error)
     }
@@ -56,6 +70,20 @@ class UserService extends Service {
         accessToken,
         refreshToken: token,
       }
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
+  async delete(id) {
+    try {
+      const user = await this.model.findById(id)
+      if (user && user.isActive) {
+        user.isActive = false
+        await user.save()
+        return null
+      }
+      ApiError.notFound(this.name + ' not found')
     } catch (error) {
       return Promise.reject(error)
     }

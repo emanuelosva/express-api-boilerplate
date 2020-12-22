@@ -13,7 +13,8 @@ class UserController extends Controller {
     this.login = this.login.bind(this)
     this.signup = this.signup.bind(this)
     this.createAdmin = this.createAdmin.bind(this)
-    this.createSuperAdmin = this.createSupeAdmin.bind(this)
+    this.createSuperAdmin = this.createSuperAdmin.bind(this)
+    this.verifyAccount = this.verifyAccount.bind(this)
   }
 
   async createSuperAdmin(req, res, next) {
@@ -41,6 +42,16 @@ class UserController extends Controller {
       const { body: userDTO } = req
       const data = await this.service.signup(userDTO)
       return response.success(req, res, 201, data, 'user created')
+    } catch (error) {
+      return next(error)
+    }
+  }
+
+  async verifyAccount(req, res, next) {
+    try {
+      const { query: { token } } = req
+      const data = await this.service.verify({ token })
+      return response.success(req, res, 200, data, 'account verified')
     } catch (error) {
       return next(error)
     }

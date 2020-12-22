@@ -37,6 +37,13 @@ router.post(
 )
 
 router.post(
+  '/verify',
+  limiter(MAX_REQUEST_PER_MIN_IN_AUTH),
+  requestValidation(validators.verifyValidator),
+  userController.verifyAccount,
+)
+
+router.post(
   '/login',
   limiter(MAX_REQUEST_PER_MIN_IN_AUTH),
   requestValidation(validators.loginValidator),

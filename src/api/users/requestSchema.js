@@ -43,6 +43,12 @@ exports.signupValidator = [
   lastnameSchema().optional(),
 ]
 
+exports.verifyValidator = [
+  query('token')
+    .exists().withMessage('<token> is required')
+    .isJWT().withMessage('<token> is invalid'),
+]
+
 exports.loginValidator = [
   emailSchema().exists().withMessage('<email> is required'),
   passwordSchema().optional().withMessage('<password> is required'),
