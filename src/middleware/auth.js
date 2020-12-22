@@ -14,6 +14,11 @@ const extractTokenFromHeader = (req) => {
   }
 }
 
+const isOwner = (req) => {
+  const { params: { id }, query: { user: userQuery }, user } = req
+  return id === user.id || userQuery === user.id
+}
+
 const IsAuthenticated = async (req, res, next) => {
   try {
     const token = extractTokenFromHeader(req)
@@ -31,8 +36,7 @@ const IsAuthenticated = async (req, res, next) => {
 }
 
 const IsAccountOwner = (req, res, next) => {
-  const { params: { id } } = req
-  if (id === req.user.id) {
+  if (isOwner(req)) {
     return next()
   }
   next(new ApiError(httpCode.status.forbidden))
@@ -54,16 +58,18 @@ const IsSuperAdmin = (req, res, next) => {
 }
 
 const IsAccountOwnerOrAdmin = (req, res, next) => {
-  const { params: { id }, user } = req
-  if (id === user.id || user.type === scopes.admin) {
+  const { user: { type } } = req
+  const isAccountOwner = isOwner(req)
+  if (isAccountOwner || type === scopes.admin || type === scopes.admin) {
     return next()
   }
   next(new ApiError(httpCode.status.forbidden, 'you dont have access to resource'))
 }
 
 const IsAccountOwnerOrSuperAdmin = (req, res, next) => {
-  const { params: { id }, user } = req
-  if (id === user.id || user.type === scopes.superAdmin) {
+  const { user: { type } } = req
+  const isAccountOwner = isOwner(req)
+  if (isAccountOwner || type === scopes.superAdmin) {
     return next()
   }
   next(new ApiError(httpCode.status.forbidden, 'you dont have access to resource'))
