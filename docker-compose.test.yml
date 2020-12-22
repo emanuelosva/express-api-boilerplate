@@ -6,12 +6,12 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.dev
-    env_file: ./../.env
+    env_file: .env
     restart: on-failure
     environment:
      - NODE_ENV=test
     volumes:
-      - ./../:/usr/src/
+      - .:/usr/src/
     ports:
       - 3000:3000
     depends_on:

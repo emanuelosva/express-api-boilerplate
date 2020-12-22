@@ -79,21 +79,8 @@ class Service {
 
   async delete(id) {
     try {
-      const item = await this.model.findById(id)
-      if (item) {
-        if (this.activeSchema) {
-          if (item.isActive) {
-            item.isActive = false
-            this.cache.delete(item.id)
-            await item.save()
-            return null
-          }
-          ApiError.notFound(this.name + ' not found')
-        }
-        this.cache.delete(item.id)
-        await item.delete()
-        return null
-      }
+      const item = await this.model.findByIdAndDelete(id)
+      if (item) return null
       ApiError.notFound(this.name + ' not found')
     } catch (error) {
       return Promise.reject(error)

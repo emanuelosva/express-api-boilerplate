@@ -6,10 +6,10 @@ services:
     build: 
       context: .
       dockerfile: ./docker/Dockerfile.prod
-    env_file: ./../.env
+    env_file: .env
     restart: on-failure
     volumes:
-      - ./../:/usr/src/
+      - .:/usr/src/
     environment:
      - NODE_ENV=production
     ports:
