@@ -10,7 +10,7 @@ router.use(limiter(MAX_REQUEST_PER_MINUTE))
 
 router.post(
   '/',
-  auth.IsAuthenticated, auth.IsAccountOwner,
+  auth.IsAuthenticated,
   requestValidation(validators.insertValidator),
   todoController.insert,
 )
@@ -24,28 +24,28 @@ router.get(
 
 router.get(
   '/:id',
-  auth.IsAuthenticated, auth.IsAccountOwnerOrAdmin,
+  auth.IsAuthenticated,
   requestValidation(validators.getOneValidator),
   todoController.getOne,
 )
 
 router.put(
   '/:id',
-  auth.IsAuthenticated, auth.IsAccountOwner,
+  auth.IsAuthenticated,
   requestValidation(validators.updateValidator),
   todoController.update,
 )
 
 router.patch(
   '/:id',
-  auth.IsAuthenticated, auth.IsAccountOwner,
+  auth.IsAuthenticated,
   requestValidation(validators.patchValidator),
   todoController.update,
 )
 
 router.delete(
   '/:id',
-  auth.IsAuthenticated, auth.IsAccountOwner,
+  auth.IsAuthenticated,
   requestValidation(validators.deleteValidator),
   todoController.delete,
 )

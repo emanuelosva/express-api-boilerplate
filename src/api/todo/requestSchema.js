@@ -27,7 +27,7 @@ exports.getAllValidator = [
     .toInt()
     .isLength({ min: 1, max: 200 }).withMessage('<limit> must be between 1 to 200'),
   query('skip')
-    .exists()
+    .optional()
     .isNumeric().withMessage('<limit> must be a number')
     .toInt(),
   userQuerySchema().exists().withMessage('<user> is required'),
