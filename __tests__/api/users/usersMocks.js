@@ -1,5 +1,3 @@
-const UserService = require('../../../../src/api/v1/users/service')
-
 const userCreateMock = {
   name: 'Stan',
   email: 'stan@marvel.com',
@@ -45,5 +43,4 @@ module.exports = {
   userCreateMock,
   userMock,
   usersList,
-  userService: new UserService(),
 }

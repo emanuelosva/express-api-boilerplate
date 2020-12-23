@@ -1,12 +1,7 @@
-const { describe } = require('joi')
-const { db, request } = require('../../helpers')
-const {
-  userCreateMock,
-  userMock,
-  userService,
-} = require('./users.mocks')
+const { db, request, userService } = require('../helpers')
+const { userCreateMock, userMock } = require('./usersMocks')
 
-const BASE_URL = '/api/v1/users'
+const BASE_URL = '/api/users'
 const contentTypeHeader = 'Content-Type'
 const contentTypeValue = 'application/json'
 
@@ -15,7 +10,7 @@ describe('Users', () => {
     await db.connect()
   })
   afterEach(async () => {
-    await db.drop('users')
+    await db.drop()
   })
   afterAll(async () => {
     await db.disconnect()
@@ -30,6 +25,7 @@ describe('Users', () => {
 
       expect(status).toBe(201)
       expect(data.email).toEqual(userCreateMock.email)
+      expect(data.isActive).toBeFalsy()
     })
 
     test('Should return 400 - if email is not an email', async () => {
@@ -59,9 +55,9 @@ describe('Users', () => {
 
     test('Should return 400 - if email is not an email', async () => {
       const { body, status } = await request
-        .post(`${BASE_URL}/signup`)
+        .post(`${BASE_URL}/login`)
         .set(contentTypeHeader, contentTypeValue)
-        .send({ email: 'fake.mx', password: userMock.password })
+        .send({ email: 'fakemx', password: userMock.password })
 
       expect(status).toBe(400)
       expect(body.message).toBeDefined()
@@ -69,9 +65,9 @@ describe('Users', () => {
 
     test('Should return 401 - if invalid', async () => {
       const { body, status } = await request
-        .post(`${BASE_URL}/signup`)
+        .post(`${BASE_URL}/login`)
         .set(contentTypeHeader, contentTypeValue)
-        .send({ email: 'fake@test.mx', password: 'superFake001' })
+        .send({ email: 'fake@mail.com', password: 'superFake001' })
 
       expect(status).toBe(401)
       expect(body.message).toBeDefined()
