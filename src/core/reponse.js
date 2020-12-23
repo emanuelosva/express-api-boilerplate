@@ -9,28 +9,28 @@ const logRequest = async (req, statusCode, message) => {
   logger.info(info)
 }
 
-exports.success = (req, res, status, data, detail) => {
+exports.success = (req, res, status, data, message) => {
   const statusCode = status || httpCode.status.ok
-  const statusMessage = detail || httpCode.mapCodeToMessage[statusCode]
+  const statusMessage = message || httpCode.mapCodeToMessage[statusCode]
 
   logRequest(req, statusCode, statusMessage)
 
   return res.status(statusCode).json({
     error: false,
-    detail: statusMessage,
+    message: statusMessage,
     data: data || {},
   })
 }
 
-exports.error = (req, res, status, data, detail) => {
+exports.error = (req, res, status, data, message) => {
   const statusCode = status || httpCode.status.serverError
-  const statusMessage = detail || httpCode.mapCodeToMessage[statusCode]
+  const statusMessage = message || httpCode.mapCodeToMessage[statusCode]
 
   logRequest(req, statusCode, statusMessage)
 
   return res.status(statusCode).json({
     error: true,
-    detail: statusCode === 500 ? 'server error' : statusMessage,
+    message: statusCode === 500 ? 'server error' : statusMessage,
     data: data || {},
   })
 }

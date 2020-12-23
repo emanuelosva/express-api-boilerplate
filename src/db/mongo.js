@@ -6,7 +6,10 @@ db.Promise = global.Promise
 
 class DB {
   static async connect() {
-    db.connect(config.db.URL, {
+    const url = config.app.IS_TEST
+      ? config.db.URL_TEST
+      : config.db.URL
+    db.connect(url, {
       useCreateIndex: true,
       useUnifiedTopology: true,
       useNewUrlParser: true,
@@ -18,11 +21,11 @@ class DB {
   }
 
   static async drop(collection) {
-    await db.connection.collection(collection).drop()
+    await db.connection.dropDatabase()
   }
 
   static async disconnect() {
-    await db.disconnect()
+    await db.connection.close()
   }
 }
 

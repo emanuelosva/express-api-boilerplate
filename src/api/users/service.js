@@ -17,7 +17,7 @@ class UserService extends Service {
   async signup({ email, password, phoneNumber, name }) {
     try {
       const user = await this.model.create({ email, password, phoneNumber, name })
-      const token = await createToken(user.email, '', tokenTypes.mail)
+      const token = await createToken(user.email, user.type, tokenTypes.mail)
       await mail.sends.welcome(user.email, { name: user.name, token })
       return this.sanitize(user)
     } catch (error) {

@@ -15,6 +15,7 @@ module.exports = {
   },
   db: {
     URL: process.env.MONOG_URL,
+    URL_TEST: process.env.MONOG_URL_TEST,
   },
   redis: {
     URL: process.env.REDIS_URL,
