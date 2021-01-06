@@ -1,32 +1,44 @@
+/**
+ * Generic Service class.
+ * ----------------------
+ *
+ * All services classes must be inherit
+ * from it.
+ * This class perform the basic CRUD operation
+ * with the configuration set in the constructor.
+ */
+
 const { ApiError } = require('../lib')
 
 class Service {
-  constructor(model, cache, { name = 'item', activeSchema = false, paginationLimit = 20 } = {}) {
+  constructor(model, {
+    cache = null,
+    name = 'item',
+    paginationLimit = 50,
+  } = {},
+  ) {
     this.model = model
     this.cache = cache
     this.name = name
-    this.activeSchema = activeSchema
     this.paginationLimit = paginationLimit
-    this.getAll = this.getAll.bind(this)
-    this.getOne = this.getOne.bind(this)
-    this.insert = this.insert.bind(this)
-    this.update = this.update.bind(this)
-    this.delete = this.delete.bind(this)
   }
 
-  async getAll(query = {}) {
-    let { skip, limit } = query
-    skip = skip ? Number(skip) : 0
-    limit = limit ? Number(limit) : this.paginationLimit
-    delete query.skip
-    delete query.limit
+  async getMany(query = {}) {
     try {
-      let items = await this.cache.get(`${skip}_${limit}`)
-      if (!items) {
+      const { skip, limit } = this._getSkipLimit(query)
+      let items = null
+
+      if (this.cache) {
+        const cacheQuery = this._getCacheQuery(query, skip, limit)
+        items = await this.cache.get(cacheQuery)
+        if (!items) {
+          items = await this.model.find(query).skip(skip).limit(limit)
+          await this.cache.upsert(items, cacheQuery)
+        }
+      } else {
         items = await this.model.find(query).skip(skip).limit(limit)
-        items = items.map((item) => this.sanitize(item))
-        this.cache.upsert(items, `${skip}_${limit}`)
       }
+
       const count = await this.model.count()
       return { data: items, count }
     } catch (error) {
@@ -34,18 +46,21 @@ class Service {
     }
   }
 
-  async getOne(id) {
+  async getOne(query) {
     try {
-      let item = await this.cache.get(id)
-      if (item) return this.sanitize(item)
-      item = await this.model.findById(id)
-      if (item) {
-        if (!this.activeSchema || item.isActive) {
-          this.cache.upsert(item)
-          return this.sanitize(item)
+      let item = null
+      if (this.cache) {
+        const cacheQuery = this._getCacheQuery(query)
+        item = await this.cache.get(cacheQuery)
+        if (!item) {
+          item = await this.model.findOne(query)
+          await this.cache.upsert(item, cacheQuery)
         }
+      } else {
+        item = await this.model.findOne(query)
       }
-      ApiError.notFound(this.name + ' not found')
+      if (item) return item
+      ApiError.raise.notFound(`${this.name} not found`)
     } catch (error) {
       return Promise.reject(error)
     }
@@ -54,51 +69,52 @@ class Service {
   async insert(data) {
     try {
       const item = await this.model.create(data)
-      return this.sanitize(item)
+      return item
     } catch (error) {
       return Promise.reject(error)
     }
   }
 
-  async update(id, data) {
+  async update(query, data) {
     try {
-      const item = await this.model.findById(id)
-      if (!item || (this.activeSchema && !item.isActive)) {
-        ApiError.notFound(this.name + ' not found')
-      }
+      const item = await this.model.findOne(query)
+      if (!item) ApiError.raise.notFound(`${this.name} not found`)
       Object.keys(data).forEach((key) => {
         if (key !== undefined) item[key] = data[key]
       })
       await item.save()
-      this.cache.upsert(item)
-      return this.sanitize(item)
+      return item
     } catch (error) {
       return Promise.reject(error)
     }
   }
 
-  async delete(id) {
+  async delete(query) {
     try {
-      const item = await this.model.findByIdAndDelete(id)
-      if (item) return null
-      ApiError.notFound(this.name + ' not found')
+      const item = await this.model.findOne(query)
+      if (!item) ApiError.raise.notFound(`${this.name} not found`)
+      const deletedData = await item.delete()
+      return deletedData
     } catch (error) {
       return Promise.reject(error)
     }
   }
 
-  sanitize(data) {
-    let jsonData
-    try {
-      jsonData = data.toJSON()
-    } catch (error) {
-      jsonData = data
-    }
-    jsonData.id = jsonData._id
-    delete jsonData._id
-    delete jsonData.__v
-    delete jsonData.password
-    return jsonData
+  _getSkipLimit(query = {}) {
+    let { skip, limit } = query
+    skip = skip ? Number(skip) : 0
+    limit = limit ? Number(limit) : this.paginationLimit
+    delete query.skip
+    delete query.limit
+    return { skip, limit }
+  }
+
+  _getCacheQuery(query, skip = null, limit = null) {
+    const queryList = []
+    if (skip) queryList.push(skip)
+    if (limit) queryList.push(limit)
+    Object.values(query).forEach((value) => queryList.push(value))
+    return queryList.join('_')
   }
 }
 
