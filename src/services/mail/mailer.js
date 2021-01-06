@@ -51,7 +51,7 @@ class Mailer {
     return new Promise((resolve, reject) => {
       this.driver.messages().send(data, (err, body) => {
         if (err) return reject(err)
-        this.logger(`Email sent to ${data.to}`)
+        this.logger.info(`Email sent to ${data.to}`)
         return resolve(body)
       })
     })
