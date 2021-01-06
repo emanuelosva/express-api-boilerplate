@@ -53,14 +53,13 @@ class Service {
         const cacheQuery = this._getCacheQuery(query)
         item = await this.cache.get(cacheQuery)
         if (!item) {
-          item = await this.model.findOne(query)
+          item = await this.getOrRaiseNotFound(query, this.model)
           await this.cache.upsert(item, cacheQuery)
         }
       } else {
-        item = await this.model.findOne(query)
+        item = await this.getOrRaiseNotFound(query, this.model)
       }
-      if (item) return item
-      ApiError.raise.notFound(`${this.name} not found`)
+      return item
     } catch (error) {
       return Promise.reject(error)
     }
@@ -77,27 +76,37 @@ class Service {
 
   async update(query, data) {
     try {
-      const item = await this.model.findOne(query)
-      if (!item) ApiError.raise.notFound(`${this.name} not found`)
-      Object.keys(data).forEach((key) => {
-        if (key !== undefined) item[key] = data[key]
-      })
-      await item.save()
-      return item
+      const item = await this.getOrRaiseNotFound(query, this.model)
+      const itemUpdated = await this.performUpdate(item, data)
+      return itemUpdated
     } catch (error) {
       return Promise.reject(error)
     }
   }
 
+  async performUpdate(item, data) {
+    Object.keys(data)
+      .filter((key) => data[key] !== undefined)
+      .forEach((key) => (item[key] = data[key]))
+
+    await item.save()
+    return item
+  }
+
   async delete(query) {
     try {
-      const item = await this.model.findOne(query)
-      if (!item) ApiError.raise.notFound(`${this.name} not found`)
+      const item = await this.getOrRaiseNotFound(query, this.model)
       const deletedData = await item.delete()
       return deletedData
     } catch (error) {
       return Promise.reject(error)
     }
+  }
+
+  async getOrRaiseNotFound(query, model) {
+    const item = await model.findOne(query)
+    if (!item) ApiError.raise.notFound(`${this.name} not found`)
+    return item
   }
 
   _getSkipLimit(query = {}) {
