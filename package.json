@@ -40,12 +40,14 @@
     "jsonwebtoken": "^8.5.1",
     "mailgun-js": "^0.22.0",
     "mongoose": "^5.11.5",
+    "morgan": "^1.10.0",
     "rand-token": "^1.0.1",
     "rate-limit-redis": "^2.0.0",
     "redis": "^3.0.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
     "eslint": "^7.15.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.22.1",
