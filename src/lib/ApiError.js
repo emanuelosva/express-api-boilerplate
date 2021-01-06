@@ -1,11 +1,21 @@
-const logger = require('./logger')
+/**
+ * ApiError class.
+ * ---------------
+ *
+ * Custom error extended from native js Error
+ * that allow handle http errors with a optimized
+ * form to manage the error.
+ */
+
+const Logger = require('./logger')
 
 class ApiError extends Error {
-  constructor(status, message, isOperational = false, data = {}) {
+  constructor(status, message, data = {}, isOperational = false) {
     super(message)
     this.status = status
-    this.isOperational = isOperational
     this.data = data
+    this.isOperational = isOperational
+    Error.captureStackTrace(this)
   }
 
   async toOperational() {
@@ -13,49 +23,41 @@ class ApiError extends Error {
   }
 
   async logError() {
-    logger.error(`Message: ${this.message} - Data: ${JSON.stringify(this.data)}`)
+    Logger.error(`Message: ${this.message} - Data: ${JSON.stringify(this.data)}`)
     if (this.isOperational) {
-      logger.info(this.stack)
+      Logger.error(this.stack)
     }
   }
 
   async sendEmailIfOperational() {
     if (this.isOperational) {
-      logger.info('Sending error email to Admin')
+      Logger.info('Sending error email to Admin')
+      /** @todo: Send email to Admin on operational error. */
     }
   }
 
-  static async handleError(err) {
-    logger.error(err)
-    process.exit(1)
-  }
-
-  static badRequest(message = 'bad request') {
-    throw new ApiError(400, message)
-  }
-
-  static unauthorized(message = 'unauthorized') {
-    throw new ApiError(401, message)
-  }
-
-  static forbidden(message = 'forbidden') {
-    throw new ApiError(403, message)
-  }
-
-  static notFound(message = 'not found') {
-    throw new ApiError(404, message)
-  }
-
-  static conflict(message = 'conflict with preexisting data') {
-    throw new ApiError(409, message)
-  }
-
-  static preconditionFailed(message = 'precondition failed') {
-    throw new ApiError(412, message)
-  }
-
-  static serverError(message = 'server error') {
-    throw new ApiError(500, message)
+  static raise = {
+    badRequest: (message = 'bad request') => {
+      throw new ApiError(400, message)
+    },
+    unauthorized: (message = 'unauthorized') => {
+      throw new ApiError(401, message)
+    },
+    forbidden: (message = 'forbidden') => {
+      throw new ApiError(403, message)
+    },
+    notFound: (message = 'not found') => {
+      throw new ApiError(404, message)
+    },
+    conflict: (message = 'conflict with preexisting data') => {
+      throw new ApiError(409, message)
+    },
+    preconditionFailed: (message = 'precondition failed') => {
+      throw new ApiError(412, message)
+    },
+    serverError: (message = 'server error') => {
+      throw new ApiError(500, message)
+    },
   }
 }
 
