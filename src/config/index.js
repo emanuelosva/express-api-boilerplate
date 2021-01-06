@@ -23,6 +23,7 @@ module.exports = {
   },
   api: {
     REQUEST_LIMIT_IN_CACHE: getOsEnv('REQUEST_LIMIT_IN_CACHE', false),
+    CACHE_SECONDS: getOsEnv('CACHE_SECONDS', 10),
   },
   db: {
     URL: getOsEnv('MONGO_URL'),
