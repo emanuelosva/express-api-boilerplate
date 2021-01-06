@@ -1,3 +1,2 @@
-module.exports.constants = require('./contants')
-module.exports.sender = require('./sender')
-module.exports.sends = require('./sends')
+module.exports.Templates = require('./templates')
+module.exports.Mailer = require('./mailer')
