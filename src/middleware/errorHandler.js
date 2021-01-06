@@ -1,23 +1,25 @@
+/**
+ * Central error handler middleware.
+ * ---------------------------------
+ *
+ * All error must be passed trhough next function
+ * to this middleware to be handle properly and
+ * return a homegenized error response.
+ *
+ */
+
 const { response } = require('../core')
-const { ApiError } = require('../lib')
+const { ErrorHandler } = require('../lib')
 const httpCode = require('../lib/httpCode')
 
-const errorHandler = async (err, req, res, next) => {
-  let error = err
-
-  if (!(err instanceof ApiError)) {
-    error = new ApiError(httpCode.status.serverError, err.message)
-    error.stack = err.stack
-    await error.toOperational()
-  }
-
-  await error.logError()
-  await error.sendEmailIfOperational()
+const centralErrorHandler = async (err, req, res, next) => {
+  const error = ErrorHandler.handleError(err)
 
   if (error.status === httpCode.status.unauthorized) {
     res.set('WWW-Authenticate', 'JWT')
   }
+
   return response.error(req, res, error.status, error.data, error.message)
 }
 
-module.exports = errorHandler
+module.exports = centralErrorHandler
