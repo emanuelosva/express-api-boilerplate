@@ -21,6 +21,7 @@ winston.configure({
   ),
   transports: [
     new transports.File({ filename: 'error', level: 'error' }),
+    new transports.File({ filename: 'warning', level: 'warn' }),
     new transports.File({ filename: 'info', level: 'info' }),
     new transports.Console({
       format: format.combine(
@@ -44,6 +45,10 @@ class Logger {
 
   static error(message, ...args) {
     winston.error(`[error] --> ${message} | `, args)
+  }
+
+  static warn(message, ...args) {
+    winston.warn(`[warning] --> ${message} | `, args)
   }
 
   static parsePathToScope(filepath) {

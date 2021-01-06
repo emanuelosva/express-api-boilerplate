@@ -37,26 +37,26 @@ class ApiError extends Error {
   }
 
   static raise = {
-    badRequest: (message = 'bad request') => {
-      throw new ApiError(400, message)
+    badRequest: (message = 'bad request', data = {}, operational = false) => {
+      throw new ApiError(400, message, data, operational)
     },
-    unauthorized: (message = 'unauthorized') => {
-      throw new ApiError(401, message)
+    unauthorized: (message = 'unauthorized', data = {}, operational = false) => {
+      throw new ApiError(401, message, data, operational)
     },
-    forbidden: (message = 'forbidden') => {
-      throw new ApiError(403, message)
+    forbidden: (message = 'forbidden', data = {}, operational = false) => {
+      throw new ApiError(403, message, data, operational)
     },
-    notFound: (message = 'not found') => {
-      throw new ApiError(404, message)
+    notFound: (message = 'not found', data = {}, operational = false) => {
+      throw new ApiError(404, message, data, operational)
     },
-    conflict: (message = 'conflict with preexisting data') => {
-      throw new ApiError(409, message)
+    conflict: (message = 'conflict with preexisting data', data = {}, operational = false) => {
+      throw new ApiError(409, message, data, operational)
     },
-    preconditionFailed: (message = 'precondition failed') => {
-      throw new ApiError(412, message)
+    preconditionFailed: (message = 'precondition failed', data = {}, operational = false) => {
+      throw new ApiError(412, message, data, operational)
     },
-    serverError: (message = 'server error') => {
-      throw new ApiError(500, message)
+    serverError: (message = 'server error', data = {}, operational = false) => {
+      throw new ApiError(500, message, data, operational)
     },
   }
 }
