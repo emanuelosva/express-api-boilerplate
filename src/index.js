@@ -1,14 +1,21 @@
-const app = require('./app')
-const config = require('./config')
-const { ApiError, logger } = require('./lib')
+/**
+ * Server entrypoint.
+ * ------------------
+ */
 
-const { app: { PORT } } = config
+import App from './app'
+import ApiRouter from './api'
+import { ErrorHandler } from './lib'
 
-process.on('unhandledRejection', async (err) => {
-  await ApiError.handleError(err)
-})
+const app = new App([
+  ApiRouter,
+])
 
-app.listen(PORT, async (err) => {
-  if (err) await ApiError.handleError(err)
-  logger.info('Server running 🚀')
-})
+if (require.main) {
+  process.on('uncaughtException', ErrorHandler.handleFatalError)
+  process.on('unhandledRejection', ErrorHandler.handleFatalError)
+  app.listen()
+}
+
+const server = app.getServer()
+export default server

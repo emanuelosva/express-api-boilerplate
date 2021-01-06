@@ -1,42 +1,72 @@
+/**
+ * Server APP configuration.
+ * -------------------------
+ *
+ * This class handle all express server
+ * configuration.
+ * Middlewares, routes and handlers are intialized
+ * by this class.
+ */
+
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
-const mongoSanitize = require('express-mongo-sanitize')
 const compression = require('compression')
-const DB = require('./db/mongo')
-const { notFoundHandler, errorHandler, logRequest } = require('./middleware')
-const ApiRouter = require('./api/router')
+const mongoSanitize = require('express-mongo-sanitize')
+const config = require('./config')
+const { DB } = require('./db')
+const { Logger } = require('./lib')
+const { notFoundHandler, centralErrorHandler, requestLogger } = require('./middleware')
 
-/**
- * App instance
- */
-const app = express()
-DB.connect()
+class App {
+  constructor(routers) {
+    this.app = express()
 
-/**
- * Parsers
- */
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(compression())
-app.use(logRequest)
+    this.initDB()
 
-/**
- * Security
- */
-app.use(cors())
-app.use(helmet())
-app.use(mongoSanitize())
+    this.initializeParsers()
+    this.initializeMiddlewares()
+    this.registerRouters(routers)
+    this.addErrorHandling()
+  }
 
-/**
- * Routers
- */
-app.use('/api', ApiRouter)
+  getServer() {
+    return this.app
+  }
 
-/**
- * Error handler
- */
-app.use(notFoundHandler)
-app.use(errorHandler)
+  listen() {
+    this.app.listen(config.app.PORT, () => {
+      Logger.info(`App launching 🚀 on port: ${config.app.PORT}`)
+    })
+  }
 
-module.exports = app
+  async initDB() {
+    await DB.connect()
+  }
+
+  registerRouters(routers) {
+    routers.forEach((router) => {
+      this.app.use('/api', router)
+    })
+  }
+
+  initializeParsers() {
+    this.app.use(compression())
+    this.app.use(express.json())
+    this.app.use(express.urlencoded({ extended: true }))
+  }
+
+  initializeMiddlewares() {
+    this.app.use(requestLogger())
+    this.app.use(cors())
+    this.app.use(helmet())
+    this.app.use(mongoSanitize())
+  }
+
+  addErrorHandling() {
+    this.app.use(notFoundHandler)
+    this.app.use(centralErrorHandler)
+  }
+}
+
+module.exports = App
