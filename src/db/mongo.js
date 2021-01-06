@@ -1,31 +1,57 @@
-const db = require('mongoose')
-const config = require('../config')
-const { logger, ApiError } = require('../lib')
+/**
+ * Mongoose DB connection class
+ * ----------------------------
+ *
+ * Mongoose class to handle connection,
+ * droping and close connection operations.
+ */
 
-db.Promise = global.Promise
+const mongoose = require('mongoose')
+const config = require('../config')
+const { Logger, ErrorHandler } = require('../lib')
+
+mongoose.Promise = global.Promise
 
 class DB {
+  static logger = new Logger('DB')
+  static connection = mongoose.connection
+  static db = mongoose.connection.db
+
   static async connect() {
     const url = config.app.IS_TEST
       ? config.db.URL_TEST
       : config.db.URL
-    db.connect(url, {
-      useCreateIndex: true,
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-    }).then(() => {
-      logger.info('DB connected')
-    }).catch(async (err) => {
-      await ApiError.handleError(err)
-    })
+    try {
+      await mongoose.connect(url, {
+        useCreateIndex: true,
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
+      })
+      this.logger.info(`DB connected. ENV: ${process.env.NODE_ENV}`)
+    } catch (error) {
+      this.logger.error('Connection error')
+      ErrorHandler.handleFatalError(error)
+    }
   }
 
-  static async drop(collection) {
-    await db.connection.dropDatabase()
+  static async drop() {
+    try {
+      await this.connection.dropDatabase()
+      this.logger.info('DB dropped')
+    } catch (error) {
+      this.logger.error('Dropping error:')
+      ErrorHandler.handleFatalError(error)
+    }
   }
 
   static async disconnect() {
-    await db.connection.close()
+    try {
+      await this.connection.close()
+      this.logger.info('DB connection closed')
+    } catch (error) {
+      this.logger.error('Disconect error:')
+      ErrorHandler.handleFatalError(error)
+    }
   }
 }
 
