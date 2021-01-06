@@ -1,35 +1,48 @@
-require('dotenv').config()
+/**
+ * Global App configuration
+ * ------------------------
+ *
+ * All env vars and general configuration
+ * must be pñaced in this file inside the config
+ * object.
+ */
 
-const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+const path = require('path')
+const { getOsEnv } = require('./utils')
+
+require('dotenv').config({
+  path: path.resolve(__dirname, `../../.env.${getOsEnv('NODE_ENV')}`),
+})
 
 module.exports = {
   app: {
-    PORT: process.env.PORT || 3000,
-    IS_PRODUCTION: IS_PRODUCTION,
-    IS_TEST: process.env.NODE_ENV === 'test',
-    IS_SERVERLESS: process.env.IS_SERVERLESS || false,
-    CONFIRM_ACCOUNT_URL: process.env.CONFIRM_ACCOUNT_URL,
-    WEB_URL: IS_PRODUCTION
-      ? process.env.PRODUCTION_WEB_URL
-      : process.env.DEV_WEB_URL,
+    PORT: getOsEnv('PORT', 3000),
+    IS_PRODUCTION: getOsEnv('NODE_ENV') === 'production',
+    IS_DEV: getOsEnv('NODE_ENV') === 'development',
+    IS_TEST: getOsEnv('NODE_ENV') === 'test',
+  },
+  api: {
+    REQUEST_LIMIT_IN_CACHE: getOsEnv('REQUEST_LIMIT_IN_CACHE', false),
   },
   db: {
-    URL: process.env.MONOG_URL,
-    URL_TEST: process.env.MONOG_URL_TEST,
+    URL: getOsEnv('MONGO_URL'),
+    URL_TEST: getOsEnv('MONOG_URL_TEST'),
   },
   redis: {
-    URL: process.env.REDIS_URL,
-    HOST: process.env.REDIS_HOST,
-    PORT: process.env.REDIS_PORT || '6379',
-    PASSWORD: process.env.REDIS_PASSWORD || null,
+    URL: getOsEnv('REDIS_URL'),
+    HOST: getOsEnv('REDIS_HOST', 'localhost'),
+    PORT: getOsEnv('REDIS_PORT', '6379'),
+    PASSWORD: getOsEnv('REDIS_PASSWORD', 'redis'),
   },
   security: {
-    SECRET: process.env.SECRET || 'secret',
+    allowedCors: getOsEnv('ALLOWED_CORS', ['*']),
+    SECRET: getOsEnv('SECRET', 'devSecret'),
     ALGORITHMS: ['HS256'],
-    allowedCors: process.env.ALLOWED_CORS || '*',
   },
   mailing: {
-    API_KEY: process.env.MAILGUN_API_KEY,
-    DOMAIN: process.env.MAILGUN_DOMAIN || 'sandbox4c67baf640164818bf8e0201ddba1c4f.mailgun.org',
+    API_KEY: getOsEnv('MAILGUN_API_KEY'),
+    DOMAIN: getOsEnv('MAILGUN_DOMAIN'),
+    FROM_EMAIL: getOsEnv('MAILGUN_DOMAIN', 'example@samples.mailgun.org'),
+    FROM_EMAIL_NAME: getOsEnv('FROM_EMAIL_NAME', 'My App'),
   },
 }
