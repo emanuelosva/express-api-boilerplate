@@ -3,9 +3,9 @@
  * ------------------
  */
 
-import App from './app'
-import { ErrorHandler } from './lib'
-import { ApiRouterV1 } from './api'
+const App = require('./app')
+const { ErrorHandler } = require('./lib')
+const { ApiRouterV1 } = require('./api')
 
 const app = new App([
   ApiRouterV1,
@@ -18,4 +18,4 @@ if (require.main) {
 }
 
 const server = app.getServer()
-export default server
+module.exports = server

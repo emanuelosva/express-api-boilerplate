@@ -24,7 +24,7 @@ class UserController extends Controller {
     this.createAdmin = this.createAdmin.bind(this)
     this.signup = this.signup.bind(this)
 
-    this.verifyAccount = this.verifyAccount.bind(this)
+    this.confirmAccount = this.confirmAccount.bind(this)
     this.refreshToken = this.refreshToken.bind(this)
     this.login = this.login.bind(this)
   }

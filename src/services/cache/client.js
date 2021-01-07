@@ -17,7 +17,7 @@ cacheClient.on('ready', () => {
 })
 
 cacheClient.on('error', (err) => {
-  ErrorHandler.handlError(err)
+  ErrorHandler.handleError(err)
 })
 
 module.exports = cacheClient

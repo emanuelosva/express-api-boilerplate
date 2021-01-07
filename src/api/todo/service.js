@@ -6,7 +6,7 @@
  * directly related with Todo entitie.
  */
 
-const { Todo } = require('./models')
+const { Todo } = require('./model')
 const { Service } = require('../../core')
 const { Cache } = require('../../services/cache')
 

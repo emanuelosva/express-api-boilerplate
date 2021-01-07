@@ -5,8 +5,8 @@
  * Show relevant info of each request.
  */
 
-import morgan from 'morgan'
-import config from '../config'
+const morgan = require('morgan')
+const config = require('../config')
 
 const requestLogger = () => {
   if (config.app.IS_PRODUCTION) return morgan('combined')

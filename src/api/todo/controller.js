@@ -7,7 +7,7 @@
  */
 
 const TodoService = require('./service')
-const { Todo } = require('./models')
+const { Todo } = require('./model')
 const { Controller } = require('../../core')
 
 class TodoController extends Controller {
