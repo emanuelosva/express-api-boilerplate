@@ -13,7 +13,7 @@ const { scopes } = require('../../auth')
 
 module.exports = (ApiRouter, prefix) => {
   const router = Router()
-  ApiRouter.use(`/${prefix}/users`, router)
+  ApiRouter.use(`/${prefix}`, router)
 
   const MAX_REQUEST_PER_MIN_IN_SIGNUP = 4
   const MAX_REQUEST_PER_MIN_IN_LOGIN = 10

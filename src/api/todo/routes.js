@@ -13,7 +13,7 @@ const { scopes } = require('../../auth')
 
 module.exports = (ApiRouter, prefix) => {
   const router = Router()
-  ApiRouter.use(`/${prefix}/todos`, router)
+  ApiRouter.use(`/${prefix}`, router)
 
   const MAX_REQUEST_PER_MINUTE = 60
   const todoController = new TodoController()

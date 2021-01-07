@@ -4,11 +4,11 @@
  */
 
 import App from './app'
-import ApiRouter from './api'
 import { ErrorHandler } from './lib'
+import { ApiRouterV1 } from './api'
 
 const app = new App([
-  ApiRouter,
+  ApiRouterV1,
 ])
 
 if (require.main) {
