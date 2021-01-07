@@ -20,9 +20,9 @@ winston.configure({
     format.simple(),
   ),
   transports: [
-    new transports.File({ filename: 'error', level: 'error' }),
-    new transports.File({ filename: 'warning', level: 'warn' }),
-    new transports.File({ filename: 'info', level: 'info' }),
+    new transports.File({ filename: 'error.log', level: 'error' }),
+    new transports.File({ filename: 'warning.log', level: 'warn' }),
+    new transports.File({ filename: 'info.log', level: 'info' }),
     new transports.Console({
       format: format.combine(
         format.timestamp({ format: 'YYYY-MM-DDTHH:mm' }),
