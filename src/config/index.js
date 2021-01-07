@@ -27,7 +27,7 @@ module.exports = {
   },
   db: {
     URL: getOsEnv('MONGO_URL'),
-    URL_TEST: getOsEnv('MONOG_URL_TEST'),
+    URL_TEST: getOsEnv('MONGO_URL_TEST'),
   },
   redis: {
     URL: getOsEnv('REDIS_URL'),
@@ -42,7 +42,7 @@ module.exports = {
   },
   mailing: {
     API_KEY: getOsEnv('MAILGUN_API_KEY'),
-    DOMAIN: getOsEnv('MAILGUN_DOMAIN'),
+    DOMAIN: getOsEnv('MAILGUN_DOMAIN', 'example@samples.mailgun.org'),
     FROM_EMAIL: getOsEnv('MAILGUN_DOMAIN', 'example@samples.mailgun.org'),
     FROM_EMAIL_NAME: getOsEnv('FROM_EMAIL_NAME', 'My App'),
   },

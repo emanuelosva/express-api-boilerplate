@@ -9,7 +9,7 @@ const getOsEnv = (varName, defaulValue) => {
   const value = process.env[varName]
 
   if (!value) {
-    if (defaulValue) return defaulValue
+    if (defaulValue !== undefined) return defaulValue
     throw new Error(`${varName} missing in process.env`)
   }
 
