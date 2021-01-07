@@ -1,28 +1,75 @@
+/**
+ * User model.
+ * -----------
+ *
+ * A user entitie represents all real
+ * persons that interact with application.
+ * A User can be an Admin, SuperAdmin or simple
+ * user. By default the type `user` is defined.
+ */
+
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
+const { DB } = require('../../../db')
 const { scopes } = require('../../../auth')
 const { ApiError } = require('../../../lib')
 
 const Schema = mongoose.Schema
 
+/**
+ * Schema
+ */
 const UserSchema = new Schema({
-  id: String,
-  email: { type: String, required: true },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true },
-  name: { type: String, required: true },
-  lastname: { type: String, default: '' },
-  phoneNumber: { type: String, required: true },
+  name: { type: String, required: true, trim: true },
+  lastname: { type: String, default: '', trim: true },
+  phoneNumber: { type: String, default: '', trim: true },
   picture: { type: String, default: '' },
   biography: { type: String, default: '' },
   isActive: { type: Boolean, default: false },
-  type: { type: String, enum: Object.values(scopes), default: scopes.user },
-  joinedAt: { type: Date, default: Date.now },
+  type: { type: String, enum: Object.values(scopes), default: scopes.USER },
 }, {
+  id: true,
   timestamps: true,
+  toObject: {
+    virtuals: true,
+    getters: true,
+  },
+  toJSON: {
+    virtuals: true,
+    getters: true,
+    transform: function(doc, ret) {
+      delete ret.password
+      delete ret._id
+      delete ret.__v
+    },
+  },
 })
 
+/**
+ * Indexes
+ */
 UserSchema.index({ email: 1 })
 
+/**
+ * Virtuals
+ */
+UserSchema.virtual('fullName').get(function() {
+  return this.name + ' ' + this.lastname
+})
+
+/**
+ * Methods
+ */
+UserSchema.methods.comparePassword = async function(rawPassword) {
+  const match = await bcrypt.compare(rawPassword, this.password)
+  return match
+}
+
+/**
+ * Middlewares
+ */
 UserSchema.pre('save', async function(next) {
   try {
     if (this.isModified('password')) {
@@ -31,9 +78,8 @@ UserSchema.pre('save', async function(next) {
       this.password = hash
     }
     if (this.isModified('email')) {
-      const db = mongoose.connection.db
-      const emailExists = await db.collection('users').findOne({ email: this.email })
-      if (emailExists) ApiError.conflict('email already exists')
+      const emailExists = await DB.db.collection('users').findOne({ email: this.email })
+      if (emailExists) ApiError.raise.conflict('email already exists')
     }
     next()
   } catch (error) {
@@ -41,13 +87,12 @@ UserSchema.pre('save', async function(next) {
   }
 })
 
-UserSchema.methods.comparePassword = async function(rawPassword) {
+UserSchema.post('deleteOne', async function(next) {
   try {
-    const match = await bcrypt.compare(rawPassword, this.password)
-    return match
+    await DB.db.collection('todos').deleteMany({ user: String(this._id) })
   } catch (error) {
-    return false
+    next(error)
   }
-}
+})
 
-module.exports = mongoose.model('User', UserSchema, 'users')
+module.exports.User = mongoose.model('User', UserSchema)

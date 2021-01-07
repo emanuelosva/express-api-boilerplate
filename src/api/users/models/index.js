@@ -1,2 +1,2 @@
-module.exports.User = require('./user')
-module.exports.RefreshToken = require('./refreshToken')
+module.exports.User = require('./user').User
+module.exports.RefreshToken = require('./refreshToken').RefreshToken

@@ -1,26 +1,38 @@
-const { response } = require('../../core')
+/**
+ * User controller.
+ * ----------------
+ *
+ * This class handle all request to resources
+ * directly related with User entitie.
+ */
+
 const UserService = require('./service')
-const { User, RefreshToken } = require('./models')
-const { Controller } = require('../../core')
+const { User } = require('./models')
+const { response, Controller } = require('../../core')
 const { scopes } = require('../../auth')
 
-const userService = new UserService(User, RefreshToken)
-
 class UserController extends Controller {
-  constructor(service = userService) {
-    super(service, { serviceName: 'user' })
+  constructor(service = new UserService(User)) {
+    super(service, {
+      name: 'user',
+      queryField: 'id',
+      queryIn: 'params',
+      aditionalFilter: { isActive: true },
+    })
+
+    this.createSuperAdmin = this.createSuperAdmin.bind(this)
+    this.createAdmin = this.createAdmin.bind(this)
+    this.signup = this.signup.bind(this)
+
+    this.verifyAccount = this.verifyAccount.bind(this)
     this.refreshToken = this.refreshToken.bind(this)
     this.login = this.login.bind(this)
-    this.signup = this.signup.bind(this)
-    this.createAdmin = this.createAdmin.bind(this)
-    this.createSuperAdmin = this.createSuperAdmin.bind(this)
-    this.verifyAccount = this.verifyAccount.bind(this)
   }
 
   async createSuperAdmin(req, res, next) {
     try {
       const { body: userDTO } = req
-      const data = await this.service.insert({ ...userDTO, type: scopes.superAdmin })
+      const data = await this.service.insert({ ...userDTO, type: scopes.SUPER_ADMIN, isActive: true })
       return response.success(req, res, 201, data, 'user created')
     } catch (error) {
       return next(error)
@@ -30,7 +42,7 @@ class UserController extends Controller {
   async createAdmin(req, res, next) {
     try {
       const { body: userDTO } = req
-      const data = await this.service.insert({ ...userDTO, type: scopes.admin })
+      const data = await this.service.insert({ ...userDTO, type: scopes.ADMIN, isActive: true })
       return response.success(req, res, 201, data, 'user created')
     } catch (error) {
       return next(error)
@@ -47,10 +59,10 @@ class UserController extends Controller {
     }
   }
 
-  async verifyAccount(req, res, next) {
+  async confirmAccount(req, res, next) {
     try {
-      const { query: { token } } = req
-      const data = await this.service.verify({ token })
+      const { body: { token } } = req
+      const data = await this.service.confirmAccount({ token })
       return response.success(req, res, 200, data, 'account verified')
     } catch (error) {
       return next(error)
@@ -78,4 +90,4 @@ class UserController extends Controller {
   }
 }
 
-module.exports = new UserController(userService)
+module.exports = UserController

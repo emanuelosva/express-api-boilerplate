@@ -1,94 +1,105 @@
+/**
+ * Users router.
+ * -------------
+ *
+ * Handle all user endpoints.
+ */
+
 const { Router } = require('express')
-const { auth, requestValidation, limiter } = require('../../middleware')
+const UserController = require('./controller')
 const validators = require('./requestSchema')
-const userController = require('./controller')
+const { Auth, requestValidation, limiter } = require('../../middleware')
+const { scopes } = require('../../auth')
 
-const router = Router()
+module.exports = (ApiRouter, prefix) => {
+  const router = Router()
+  ApiRouter.use(`/${prefix}/users`, router)
 
-const MAX_REQUEST_PER_MIN_IN_AUTH = 4
-router.use(limiter())
+  const MAX_REQUEST_PER_MIN_IN_SIGNUP = 4
+  const MAX_REQUEST_PER_MIN_IN_LOGIN = 10
+  const userController = new UserController()
 
-router.post(
-  '/superadmin',
-  auth.IsAuthenticated, auth.IsSuperAdmin,
-  requestValidation(validators.signupValidator),
-  userController.createSuperAdmin,
-)
+  router.post(
+    '/superadmin',
+    Auth.isAuthenticated(), Auth.isAuthorized(scopes.SUPER_ADMIN),
+    requestValidation(validators.signupValidator),
+    userController.createSuperAdmin,
+  )
 
-router.post(
-  '/admin',
-  auth.IsAuthenticated, auth.IsAdmin,
-  requestValidation(validators.signupValidator),
-  userController.createAdmin,
-)
+  router.post(
+    '/admin',
+    Auth.isAuthenticated, Auth.isAuthorized(scopes.SUPER_ADMIN),
+    requestValidation(validators.signupValidator),
+    userController.createAdmin,
+  )
 
-router.post(
-  '/',
-  auth.IsAuthenticated, auth.IsAdmin,
-  requestValidation(validators.signupValidator),
-  userController.insert,
-)
+  router.post(
+    '/',
+    Auth.isAuthenticated(), Auth.isAuthorized(scopes.ADMIN, scopes.SUPER_ADMIN),
+    requestValidation(validators.signupValidator),
+    userController.insert,
+  )
 
-router.post(
-  '/signup',
-  limiter(MAX_REQUEST_PER_MIN_IN_AUTH),
-  requestValidation(validators.signupValidator),
-  userController.signup,
-)
+  router.post(
+    '/signup',
+    limiter(MAX_REQUEST_PER_MIN_IN_SIGNUP),
+    requestValidation(validators.signupVLOGINor), requestValidation(validators.signupValidator),
+    userController.signup,
+  )
 
-router.post(
-  '/verify',
-  limiter(MAX_REQUEST_PER_MIN_IN_AUTH),
-  requestValidation(validators.verifyValidator),
-  userController.verifyAccount,
-)
+  router.post(
+    '/verify',
+    limiter(MAX_REQUEST_PER_MIN_IN_SIGNUP),
+    requestValidation(validators.verifyVLOGINor), requestValidation(validators.verifyValidator),
+    userController.confirmAccount,
+  )
 
-router.post(
-  '/login',
-  limiter(MAX_REQUEST_PER_MIN_IN_AUTH),
-  requestValidation(validators.loginValidator),
-  userController.login,
-)
+  router.post(
+    '/login',
+    limiter(MAX_REQUEST_PER_MIN_IN_LOGIN),
+    requestValidation(validators.loginVLOGINor), requestValidation(validators.loginValidator),
+    userController.login,
+  )
 
-router.post(
-  '/refresh-token',
-  requestValidation(validators.refreshValidator),
-  userController.refreshToken,
-)
+  router.post(
+    '/refresh-token',
+    limiter(MAX_REQUEST_PER_MIN_IN_SIGNUP),
+    requestValidation(validators.refreshValidator),
+    userController.refreshToken,
+  )
 
-router.get(
-  '/',
-  auth.IsAuthenticated, auth.IsAdmin,
-  requestValidation(validators.getAllValidator),
-  userController.getAll,
-)
+  router.get(
+    '/',
+    Auth.isAuthenticated(), Auth.isAuthorized(scopes.ADMIN, scopes.SUPER_ADMIN),
+    requestValidation(validators.getAllValidator),
+    userController.list,
+  )
 
-router.get(
-  '/:id',
-  auth.IsAuthenticated, auth.IsAccountOwnerOrAdmin,
-  requestValidation(validators.getOneValidator),
-  userController.getOne,
-)
+  router.get(
+    '/:id',
+    Auth.isAuthenticated(), Auth.isOwnerOrAdmin(),
+    requestValidation(validators.getOneValidator),
+    userController.retrieve,
+  )
 
-router.put(
-  '/:id',
-  auth.IsAuthenticated, auth.IsAccountOwnerOrAdmin,
-  requestValidation(validators.updateValidator),
-  userController.update,
-)
+  router.put(
+    '/:id',
+    Auth.isAuthenticated(), Auth.isOwnerOrSuperAdmin(),
+    requestValidation(validators.updateValidator),
+    userController.update,
+  )
 
-router.patch(
-  '/:id',
-  auth.IsAuthenticated, auth.IsAccountOwnerOrAdmin,
-  requestValidation(validators.patchValidator),
-  userController.update,
-)
+  router.patch(
+    '/:id',
+    Auth.isAuthenticated(), Auth.isOwnerOrSuperAdmin(),
+    requestValidation(validators.patchValidator),
+    userController.update,
+  )
 
-router.delete(
-  '/:id',
-  auth.IsAuthenticated, auth.IsAccountOwnerOrSuperAdmin,
-  requestValidation(validators.deleteValidator),
-  userController.delete,
-)
-
-module.exports = router
+  router.delete(
+    '/:id',
+    Auth.isAuthenticated(), Auth.isOwnerOrSuperAdmin(),
+    requestValidation(validators.deleteValidator),
+    userController.delete,
+  )
+}
