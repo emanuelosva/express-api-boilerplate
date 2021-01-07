@@ -45,9 +45,7 @@ class App {
   }
 
   registerRouters(routers) {
-    routers.forEach((router) => {
-      this.app.use('/api', router)
-    })
+    routers.forEach((router) => router(this.app))
   }
 
   initializeParsers() {

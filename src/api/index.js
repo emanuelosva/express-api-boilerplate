@@ -1,7 +1,17 @@
 /**
- * @fileoverview This file expose the app instance to
- * handle deploy by serverless architecture.
+ * API Router.
+ * -----------
  */
 
-const app = require('../app')
-module.exports = app
+const { Router } = require('express')
+const UserRoutes = require('./users/routes')
+// const TodoRoutes = require('./todo/routes')
+
+module.exports = (app) => {
+  const ApiRouter = Router()
+
+  /**
+   * V1 Routers
+   */
+  UserRoutes(ApiRouter, '/api/v1')
+}
