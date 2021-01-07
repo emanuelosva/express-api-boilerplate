@@ -8,6 +8,7 @@
  * with the configuration set in the constructor.
  */
 
+const { Types } = require('mongoose')
 const response = require('./reponse')
 
 class Controller {
@@ -15,6 +16,7 @@ class Controller {
     name = 'item',
     queryField = 'id',
     queryIn = 'params',
+    castIdToMongo = true,
     addUserOnCreate = false,
     aditionalFilter = {},
   } = {}) {
@@ -22,6 +24,7 @@ class Controller {
     this.name = name
     this.queryField = queryField
     this.queryIn = queryIn
+    this.castIdToMongo = castIdToMongo
     this.addUserOnCreate = addUserOnCreate
     this.filter = aditionalFilter
 
@@ -34,8 +37,8 @@ class Controller {
 
   async list(req, res, next) {
     try {
-      const { query } = req
-      const data = await this.service.getAll({ ...query, ...this.filter })
+      const { query, user } = req
+      const data = await this.service.getAll({ ...query, ...this.filter }, user)
       return response.success(req, res, 200, data, `${this.name}s retrieved`)
     } catch (error) {
       return next(error)
@@ -44,8 +47,9 @@ class Controller {
 
   async retrieve(req, res, next) {
     try {
+      const { user } = req
       const query = this._getQueryFilter(req)
-      const data = await this.service.getOne(query)
+      const data = await this.service.getOne(query, user)
       return response.success(req, res, 200, data, `${this.serviceName} retrieved`)
     } catch (error) {
       return next(error)
@@ -54,8 +58,11 @@ class Controller {
 
   async insert(req, res, next) {
     try {
-      const { body: DTO } = req
-      const data = await this.service.insert(DTO)
+      let { body: DTO, user } = req
+      if (this.addUserOnCreate) {
+        DTO = { ...DTO, user }
+      }
+      const data = await this.service.insert(DTO, user)
       return response.success(req, res, 201, data, `${this.serviceName} inserted`)
     } catch (error) {
       return next(error)
@@ -65,8 +72,8 @@ class Controller {
   async update(req, res, next) {
     try {
       const query = this._getQueryFilter(req)
-      const { body: DTO } = req
-      const data = await this.service.update(query, DTO)
+      const { body: DTO, user } = req
+      const data = await this.service.update(query, DTO, user)
       return response.success(req, res, 200, data, `${this.serviceName} updated`)
     } catch (error) {
       return next(error)
@@ -75,7 +82,8 @@ class Controller {
 
   async delete(req, res, next) {
     try {
-      const query = this._getQueryFilter(req)
+      const { user } = req
+      const query = this._getQueryFilter(req, user)
       await this.service.delete(query)
       return response.success(req, res, 204, {}, `${this.serviceName} deleted`)
     } catch (error) {
@@ -84,7 +92,11 @@ class Controller {
   }
 
   _getQueryFilter(req, queryField = this.queryField, queryIn = this.queryIn) {
-    const queryValue = req[queryIn]
+    let queryValue = req[queryIn]
+    if (queryField === 'id') {
+      queryField = '_id'
+      if (this.castIdToMongo) queryValue = Types.ObjectId(queryValue)
+    }
     return { [queryField]: queryValue, ...this.filter }
   }
 }
