@@ -47,19 +47,13 @@ class Auth {
     }
   }
 
-  static isAuthorized(scope) {
+  static isAuthorized(...allowedScopes) {
     return (req, res, next) => {
       try {
-        let allowedScopes = scope
-        if (typeof scope === 'string') {
-          allowedScopes = [scope]
-        }
         const { user } = req
-        if (user) {
-          const scope = user.type
-          if (allowedScopes.includes(scope)) return next()
-          ApiError.raise.forbidden()
-        }
+        const scope = user?.type
+        if (allowedScopes.includes(scope)) return next()
+        ApiError.raise.forbidden()
       } catch (error) {
         return next(error)
       }

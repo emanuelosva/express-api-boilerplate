@@ -1,7 +1,7 @@
 const tokeTypes = {
-  auth: 'AUTH',
-  mail: 'MAIL',
-  passwordRecover: 'PASSWORD',
+  AUTH: 'AUTH',
+  MAIL: 'MAIL',
+  PASSWORD: 'PASSWORD',
 }
 
 module.exports = tokeTypes

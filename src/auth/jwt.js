@@ -7,6 +7,7 @@
  */
 
 const jwt = require('jsonwebtoken')
+const tokenTypes = require('./tokenTypes')
 const { ApiError } = require('../lib')
 const config = require('../config')
 
