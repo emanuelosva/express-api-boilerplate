@@ -14,6 +14,8 @@ class Service {
   constructor(model, {
     cache = null,
     name = 'item',
+    checkIfUserHasAccess = false,
+    ownerFieldOnItem = 'user',
     paginationLimit = 50,
   } = {},
   ) {
@@ -21,6 +23,8 @@ class Service {
     this.cache = cache
     this.name = name
     this.paginationLimit = paginationLimit
+    this.checkIfUserHasAccess = checkIfUserHasAccess
+    this.ownerFieldOnItem = ownerFieldOnItem
   }
 
   async getMany(query = {}) {
@@ -46,7 +50,7 @@ class Service {
     }
   }
 
-  async getOne(query) {
+  async getOne(query, user = null) {
     try {
       let item = null
       if (this.cache) {
@@ -59,6 +63,7 @@ class Service {
       } else {
         item = await this.getOrRaiseNotFound(query, this.model)
       }
+      this.isAuthorized(item, user)
       return item
     } catch (error) {
       return Promise.reject(error)
@@ -74,9 +79,10 @@ class Service {
     }
   }
 
-  async update(query, data) {
+  async update(query, data, user = null) {
     try {
       const item = await this.getOrRaiseNotFound(query, this.model)
+      this.isAuthorized(item, user)
       const itemUpdated = await this.performUpdate(item, data)
       return itemUpdated
     } catch (error) {
@@ -93,9 +99,10 @@ class Service {
     return item
   }
 
-  async delete(query) {
+  async delete(query, user = null) {
     try {
       const item = await this.getOrRaiseNotFound(query, this.model)
+      this.isAuthorized(item, user)
       const deletedData = await item.delete()
       return deletedData
     } catch (error) {
@@ -107,6 +114,14 @@ class Service {
     const item = await model.findOne(query)
     if (!item) ApiError.raise.notFound(`${this.name} not found`)
     return item
+  }
+
+  isAuthorized(item, user) {
+    if (this.checkIfUserHasAccess) {
+      if (item[this.ownerFieldOnItem] === user.id) return null
+      ApiError.raise.forbidden()
+    }
+    return null
   }
 
   _getSkipLimit(query = {}) {
