@@ -1,9 +1,23 @@
+/**
+ * Todo service.
+ * -------------
+ *
+ * This class handle all bussines logic
+ * directly related with Todo entitie.
+ */
+
 const { Todo } = require('./models')
-const { Service, Cache } = require('../../core')
+const { Service } = require('../../core')
+const { Cache } = require('../../services/cache')
 
 class TodoService extends Service {
-  constructor(todoODM = Todo) {
-    super(todoODM, new Cache(), { name: 'todo' })
+  constructor(model = Todo) {
+    super(model, {
+      cache: new Cache('todos'),
+      name: 'todo',
+      checkIfUserHasAccess: true,
+      ownerFieldOnItem: 'user',
+    })
   }
 }
 

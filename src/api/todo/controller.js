@@ -1,24 +1,24 @@
+/**
+ * Todo controller.
+ * ----------------
+ *
+ * This class handle all request to resources
+ * directly related with Todo entitie.
+ */
+
 const TodoService = require('./service')
 const { Todo } = require('./models')
-const { Controller, response } = require('../../core')
-
-const todoService = new TodoService(Todo)
+const { Controller } = require('../../core')
 
 class TodoController extends Controller {
-  constructor(service = todoService) {
-    super(service, { serviceName: 'todo' })
-    this.insert = this.insert.bind(this)
-  }
-
-  async insert(req, res, next) {
-    try {
-      const { user: { _id }, body: todoDTO } = req
-      const data = await this.service.insert({ user: _id, ...todoDTO })
-      return response.success(req, res, 201, data, 'todo created')
-    } catch (error) {
-      return next(error)
-    }
+  constructor(service = new TodoService(Todo)) {
+    super(service, {
+      name: 'todo',
+      queryField: 'id',
+      queryIn: 'params',
+      addUserOnCreate: true,
+    })
   }
 }
 
-module.exports = new TodoController(todoService)
+module.exports = TodoController

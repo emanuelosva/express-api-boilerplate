@@ -1,53 +1,64 @@
+/**
+ * Todo router.
+ * ------------
+ *
+ * Handle all todo endpoints.
+ */
+
 const { Router } = require('express')
-const { auth, requestValidation, limiter } = require('../../middleware')
-const todoController = require('./controller')
+const TodoController = require('./controller')
 const validators = require('./requestSchema')
+const { Auth, requestValidation, limiter } = require('../../middleware')
+const { scopes } = require('../../auth')
 
-const router = Router()
+module.exports = (ApiRouter, prefix) => {
+  const router = Router()
+  ApiRouter.use(`/${prefix}/todos`, router)
 
-const MAX_REQUEST_PER_MINUTE = 60
-router.use(limiter(MAX_REQUEST_PER_MINUTE))
+  const MAX_REQUEST_PER_MINUTE = 60
+  const todoController = new TodoController()
 
-router.post(
-  '/',
-  auth.IsAuthenticated,
-  requestValidation(validators.insertValidator),
-  todoController.insert,
-)
+  router.use(limiter(MAX_REQUEST_PER_MINUTE))
 
-router.get(
-  '/',
-  auth.IsAuthenticated, auth.IsAccountOwnerOrAdmin,
-  requestValidation(validators.getAllValidator),
-  todoController.getAll,
-)
+  router.post(
+    '/',
+    Auth.isAuthenticated(),
+    requestValidation(validators.insertValidator),
+    todoController.insert,
+  )
 
-router.get(
-  '/:id',
-  auth.IsAuthenticated,
-  requestValidation(validators.getOneValidator),
-  todoController.getOne,
-)
+  router.get(
+    '/',
+    Auth.isAuthenticated(), Auth.isAuthorized(scopes.ADMIN, scopes.SUPER_ADMIN),
+    requestValidation(validators.getAllValidator),
+    todoController.list,
+  )
 
-router.put(
-  '/:id',
-  auth.IsAuthenticated,
-  requestValidation(validators.updateValidator),
-  todoController.update,
-)
+  router.get(
+    '/:id',
+    Auth.isAuthenticated(),
+    requestValidation(validators.getOneValidator),
+    todoController.retrieve,
+  )
 
-router.patch(
-  '/:id',
-  auth.IsAuthenticated,
-  requestValidation(validators.patchValidator),
-  todoController.update,
-)
+  router.put(
+    '/:id',
+    Auth.isAuthenticated(),
+    requestValidation(validators.updateValidator),
+    todoController.update,
+  )
 
-router.delete(
-  '/:id',
-  auth.IsAuthenticated,
-  requestValidation(validators.deleteValidator),
-  todoController.delete,
-)
+  router.patch(
+    '/:id',
+    Auth.isAuthenticated(),
+    requestValidation(validators.patchValidator),
+    todoController.update,
+  )
 
-module.exports = router
+  router.delete(
+    '/:id',
+    Auth.isAuthenticated(),
+    requestValidation(validators.deleteValidator),
+    todoController.delete,
+  )
+}
