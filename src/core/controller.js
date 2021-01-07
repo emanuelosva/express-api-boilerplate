@@ -50,7 +50,7 @@ class Controller {
       const { user } = req
       const query = this._getQueryFilter(req)
       const data = await this.service.getOne(query, user)
-      return response.success(req, res, 200, data, `${this.serviceName} retrieved`)
+      return response.success(req, res, 200, data, `${this.name} retrieved`)
     } catch (error) {
       return next(error)
     }
@@ -63,7 +63,7 @@ class Controller {
         DTO = { ...DTO, user }
       }
       const data = await this.service.insert(DTO, user)
-      return response.success(req, res, 201, data, `${this.serviceName} inserted`)
+      return response.success(req, res, 201, data, `${this.name} inserted`)
     } catch (error) {
       return next(error)
     }
@@ -74,7 +74,7 @@ class Controller {
       const query = this._getQueryFilter(req)
       const { body: DTO, user } = req
       const data = await this.service.update(query, DTO, user)
-      return response.success(req, res, 200, data, `${this.serviceName} updated`)
+      return response.success(req, res, 200, data, `${this.name} updated`)
     } catch (error) {
       return next(error)
     }
@@ -85,7 +85,7 @@ class Controller {
       const { user } = req
       const query = this._getQueryFilter(req, user)
       await this.service.delete(query)
-      return response.success(req, res, 204, {}, `${this.serviceName} deleted`)
+      return response.success(req, res, 204, {}, `${this.name} deleted`)
     } catch (error) {
       return next(error)
     }
