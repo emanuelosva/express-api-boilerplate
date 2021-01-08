@@ -52,7 +52,7 @@ class Cache {
   }
 
   async delete(key) {
-    this.setCahce(key, null)
+    await this.clearCache(key)
   }
 
   getCache(key) {
@@ -61,6 +61,10 @@ class Cache {
 
   setCahce(key, data) {
     return promisify(this.client.setex).bind(this.client)(key, this.time, JSON.stringify(data))
+  }
+
+  clearCache(key) {
+    return promisify(this.client.del).bind(this.client)(key)
   }
 }
 
